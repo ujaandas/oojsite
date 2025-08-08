@@ -17,22 +17,19 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
-      rec {
-        packages = {
-          oojsite = pkgs.buildGoModule {
-            pname = "oojsite";
-            version = "0.1.0";
-            src = ./.;
-            vendorHash = null;
-            meta = with pkgs.lib; {
-              description = "Go personal blogsite";
-              homepage = "https://ujaandas.me";
-              license = licenses.mit;
-              maintainers = [ maintainers."ujaandas" ];
-            };
+      {
+        defaultPackage = pkgs.buildGoModule {
+          pname = "oojsite";
+          version = "0.1.0";
+          src = ./.;
+          vendorHash = null;
+          meta = with pkgs.lib; {
+            description = "Go personal blogsite";
+            homepage = "https://ujaandas.me";
+            license = licenses.mit;
+            maintainers = [ maintainers."ujaandas" ];
           };
         };
-        defaultPackage = packages.oojsite;
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
