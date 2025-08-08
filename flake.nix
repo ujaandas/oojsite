@@ -19,10 +19,11 @@
       in
       {
         defaultPackage = pkgs.buildGoModule {
-          pname = "oojsite";
+          pname = "bloggor";
           version = "0.1.0";
           src = ./.;
           vendorHash = null;
+          # subPackages = [ "cmd/bloggor" ];
           meta = with pkgs.lib; {
             description = "Go personal blogsite";
             homepage = "https://ujaandas.me";
@@ -30,6 +31,7 @@
             maintainers = [ maintainers."ujaandas" ];
           };
         };
+
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
