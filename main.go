@@ -1,34 +1,43 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
+	"log"
 	"os"
-	"path/filepath"
 )
 
+type Page struct {
+	Title string
+	Body  string
+}
+
 func main() {
-	tmpl := template.Must(template.ParseFiles("layouts/layout.html"))
-
-	outputPath := filepath.Join("public", "output.html")
-	file, err := os.Create(outputPath)
+	tmpl, err := template.ParseFiles("templates/index.html")
 	if err != nil {
-		fmt.Println("Error creating file:", err)
-		return
-	}
-	defer file.Close()
-
-	data := struct {
-		Title string
-	}{
-		Title: "hello wurld",
+		log.Fatal("Parse error:", err)
 	}
 
-	err = tmpl.Execute(file, data)
+	if err := os.RemoveAll("public"); err != nil {
+		log.Fatal(err)
+	}
+	if err := os.MkdirAll("public", 0755); err != nil {
+		log.Fatal("MkdirAll error:", err)
+	}
+
+	out, err := os.Create("public/index.html")
 	if err != nil {
-		fmt.Println("Error executing template:", err)
-		return
+		log.Fatal("Create file error:", err)
+	}
+	defer out.Close()
+
+	page := Page{
+		Title: "Hello, World!",
+		Body:  "Hello, World!",
 	}
 
-	fmt.Println("Template saved to", outputPath)
+	if err := tmpl.Execute(out, page); err != nil {
+		log.Fatal("Execute error:", err)
+	}
+
+	log.Println("ok")
 }
