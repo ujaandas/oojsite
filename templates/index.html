@@ -2,13 +2,17 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>{{ .Title }}</title>
+  <meta charset="utf-8">
+  <title>Blog Index</title>
 </head>
 
 <body>
-  <h1>{{ .Title }}</h1>
-  <p>{{ .Body }}</p>
+  <h1>Blog Posts</h1>
+  <ul>
+    {{- range .Posts }}
+    <li><a href="blog/{{ .Slug }}.html">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
 </body>
 
 </html>

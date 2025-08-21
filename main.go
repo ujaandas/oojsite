@@ -1,43 +1,87 @@
 package main
 
 import (
-	"html/template"
+	"bufio"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
 )
 
-type Page struct {
-	Title string
-	Body  string
+type Post struct {
+	Slug    string
+	Title   string
+	Content string
 }
 
 func main() {
-	tmpl, err := template.ParseFiles("templates/index.html")
+	var posts []Post
+	err := filepath.WalkDir("content/blog", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || filepath.Ext(path) != ".md" {
+			return nil
+		}
+		slug := strings.TrimSuffix(d.Name(), ".md")
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		content := string(raw)
+		title := extractTitle(content, slug)
+		posts = append(posts, Post{Slug: slug, Title: title, Content: content})
+		return nil
+	})
 	if err != nil {
-		log.Fatal("Parse error:", err)
+		log.Fatalf("walking content/blog: %v", err)
 	}
 
 	if err := os.RemoveAll("public"); err != nil {
-		log.Fatal(err)
+		log.Fatalf("remove public: %v", err)
 	}
-	if err := os.MkdirAll("public", 0755); err != nil {
-		log.Fatal("MkdirAll error:", err)
+	if err := os.MkdirAll("public/blog", 0755); err != nil {
+		log.Fatalf("mkdir public/blog: %v", err)
 	}
 
-	out, err := os.Create("public/index.html")
+	tpl := template.Must(template.ParseGlob("templates/*.html"))
+
+	for _, p := range posts {
+		outPath := filepath.Join("public/blog", p.Slug+".html")
+		f, err := os.Create(outPath)
+		if err != nil {
+			log.Fatalf("create %s: %v", outPath, err)
+		}
+		if err := tpl.ExecuteTemplate(f, "post.html", p); err != nil {
+			f.Close()
+			log.Fatalf("execute post.html: %v", err)
+		}
+		f.Close()
+		log.Printf("Rendered post: %s", outPath)
+	}
+
+	idx, err := os.Create("public/index.html")
 	if err != nil {
-		log.Fatal("Create file error:", err)
+		log.Fatalf("create index.html: %v", err)
 	}
-	defer out.Close()
-
-	page := Page{
-		Title: "Hello, World!",
-		Body:  "Hello, World!",
+	data := struct{ Posts []Post }{posts}
+	if err := tpl.ExecuteTemplate(idx, "index.html", data); err != nil {
+		idx.Close()
+		log.Fatalf("execute index.html: %v", err)
 	}
+	idx.Close()
+	log.Println("Site generated at ./public")
+}
 
-	if err := tmpl.Execute(out, page); err != nil {
-		log.Fatal("Execute error:", err)
+func extractTitle(content, slug string) string {
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "# ") {
+			return strings.TrimSpace(line[2:])
+		}
 	}
-
-	log.Println("ok")
+	return slug
 }
