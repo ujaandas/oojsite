@@ -1,19 +1,15 @@
 package render
 
 import (
-	"embed"
+	"bloggor/assets"
 	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
 )
 
-//go:embed templates/*html
-var defaultTemplates embed.FS
-
 func LoadTemplates(tplDir string) (*template.Template, error) {
-	root := template.New("")
-	root, err := root.ParseFS(defaultTemplates, "templates/*.html")
+	root, err := assets.Templates()
 	if err != nil {
 		return nil, fmt.Errorf("parsing embedded templates: %w", err)
 	}

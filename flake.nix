@@ -23,7 +23,25 @@
           version = "0.1.0";
           src = ./.;
           vendorHash = null;
-          # subPackages = [ "cmd/bloggor" ];
+
+          nativeBuildInputs = [ pkgs.tailwindcss ];
+
+          buildPhase = ''
+            tailwindcss \
+              --input internal/generate/static/css/styles.css \
+              --output public/css/styles.css \
+              --content content/**/*.md internal/render/templates/*.html \
+              --minify
+
+            go build -o bloggor ./cmd/bloggor
+          '';
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp bloggor $out/bin/
+          '';
+
+          subPackages = [ "cmd/bloggor" ];
           meta = with pkgs.lib; {
             description = "Go personal blogsite";
             homepage = "https://ujaandas.me";

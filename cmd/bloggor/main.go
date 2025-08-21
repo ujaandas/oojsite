@@ -26,6 +26,10 @@ func main() {
 		logger.Fatalf("clean output: %v", err)
 	}
 
+	if err := generate.WriteStatic(cfg.OutDir); err != nil {
+		logger.Fatalf("writing static assets: %v", err)
+	}
+
 	tpl, err := render.LoadTemplates(cfg.TplDir)
 	if err != nil {
 		logger.Fatalf("load templates: %v", err)
