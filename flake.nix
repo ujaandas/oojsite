@@ -1,5 +1,5 @@
 {
-  description = "Flake with separate build vs run";
+  description = "Flake for oojsite with standalone Tailwind build";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -19,16 +19,16 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         compiledCss =
-          pkgs.runCommand "tailwindcss-output"
+          pkgs.runCommand "tailwind-css"
             {
               buildInputs = [ pkgs.tailwindcss ];
             }
             ''
-              mkdir -p $out/tailwind
+              mkdir -p $out
               tailwindcss \
-                --input    ${./assets/static/css/tailwind.css} \
-                --output   $out/tailwind/tailwind.css \
-                --content  ${./assets}/templates/*.html ${./assets}/content/**/*.md \
+                --input  ${./assets/static/css/tailwind.css} \
+                --output $out/tailwind.css \
+                --content ${./assets}/templates/*.html ${./assets}/content/**/*.md \
                 --minify
             '';
 
@@ -43,26 +43,29 @@
           '';
 
           installPhase = ''
-            mkdir -p $out/bin $out/static/css
-            cp oojsite $out/bin/
-
-            cp ${compiledCss}/tailwind/tailwind.css \
+            mkdir -p $out/{bin,static/css}
+            install -m755 oojsite $out/bin/oojsite
+            install -m644 ${compiledCss}/tailwind.css \
               $out/static/css/tailwind.css
           '';
         };
 
-        oojsiteWrapped = pkgs.writeShellScriptBin "oojsite" ''
-          set -ex
+        runWrapper = pkgs.writeShellScriptBin "oojsite" ''
+          set -euo pipefail
 
-          tmpdir=$(mktemp -d -t oojsite-XXXXXX)
+          outdir="/tmp/oojsite-dev"
 
-          ${oojsite}/bin/oojsite --out="$tmpdir" "$@"
+          echo "↪ Generating site into $outdir"
+          rm -rf "$outdir"
+          mkdir -p "$outdir"
 
-          mkdir -p "$tmpdir/static/css"
-          cp ${oojsite}/static/css/tailwind.css "$tmpdir/static/css/"
+          ${oojsite}/bin/oojsite --out="$outdir" "$@"
+
+          mkdir -p "$outdir/static/css"
+          cp ${oojsite}/static/css/tailwind.css "$outdir/static/css/"
 
           rm -rf ./public
-          ln -s "$tmpdir" ./public
+          ln -s "$outdir" ./public
         '';
       in
       {
@@ -72,17 +75,25 @@
             gopls
             go-tools
             tailwindcss
+            watchexec
           ];
-          shellHook = ''
-            echo "Welcome to the oojsite dev shell"
-          '';
         };
 
         packages.oojsite = oojsite;
 
         apps.oojsite = {
           type = "app";
-          program = "${oojsiteWrapped}/bin/oojsite";
+          program = "${runWrapper}/bin/oojsite";
+        };
+
+        apps.dev = {
+          type = "app";
+          program = "${pkgs.writeShellScriptBin "oojsite-dev" ''
+            set -euo pipefail
+            echo "↪ Starting oojsite live dev mode…"
+            watchexec -r -e md,html,css -- \
+              nix run .#oojsite
+          ''}/bin/oojsite-dev";
         };
       }
     );
