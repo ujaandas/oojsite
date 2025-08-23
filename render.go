@@ -1,4 +1,4 @@
-package render
+package main
 
 import (
 	"fmt"
@@ -45,10 +45,4 @@ func RenderPost(tpl *template.Template, post PostMeta, outPath string) error {
 		return fmt.Errorf("executing %s: %w", PostTpl, err)
 	}
 	return nil
-}
-
-type PostMeta struct {
-	Slug    string
-	Title   string
-	Content string
 }

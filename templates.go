@@ -1,9 +1,9 @@
-package render
+package main
 
 import (
-	"oojsite/assets"
 	"fmt"
 	"html/template"
+	"oojsite/assets"
 	"os"
 	"path/filepath"
 )

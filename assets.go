@@ -1,9 +1,9 @@
-package generate
+package main
 
 import (
-	"oojsite/assets"
 	"io"
 	"io/fs"
+	"oojsite/assets"
 	"os"
 	"path/filepath"
 )

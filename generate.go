@@ -1,11 +1,9 @@
-package generate
+package main
 
 import (
 	"fmt"
 	"html/template"
 	"log"
-	"oojsite/internal/content"
-	"oojsite/internal/render"
 	"os"
 	"path/filepath"
 )
@@ -18,7 +16,7 @@ func CleanOutput(outDir string) error {
 }
 
 func GenerateSite(
-	posts []content.PostMeta,
+	posts []PostMeta,
 	outDir string,
 	tpl *template.Template,
 	logger *log.Logger,
@@ -26,7 +24,7 @@ func GenerateSite(
 	for _, p := range posts {
 		outPath := filepath.Join(outDir, p.Slug+".html")
 		logger.Printf("rendering post → %s", outPath)
-		if err := render.RenderPost(tpl, render.PostMeta(p), outPath); err != nil {
+		if err := RenderPost(tpl, PostMeta(p), outPath); err != nil {
 			return fmt.Errorf("render post %q: %w", p.Slug, err)
 		}
 	}
@@ -34,11 +32,11 @@ func GenerateSite(
 	idxPath := filepath.Join(outDir, "index.html")
 	logger.Printf("rendering index → %s", idxPath)
 
-	metas := make([]render.PostMeta, len(posts))
+	metas := make([]PostMeta, len(posts))
 	for i, p := range posts {
-		metas[i] = render.PostMeta(p)
+		metas[i] = PostMeta(p)
 	}
-	if err := render.RenderIndex(tpl, metas, idxPath); err != nil {
+	if err := RenderIndex(tpl, metas, idxPath); err != nil {
 		return fmt.Errorf("render index: %w", err)
 	}
 

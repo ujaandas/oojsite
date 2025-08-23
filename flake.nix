@@ -39,7 +39,7 @@
           vendorHash = null;
 
           buildPhase = ''
-            go build -o oojsite ./cmd/oojsite
+            go build -o oojsite .
           '';
 
           installPhase = ''
@@ -81,19 +81,20 @@
 
         packages.oojsite = oojsite;
 
-        apps.oojsite = {
-          type = "app";
-          program = "${runWrapper}/bin/oojsite";
-        };
-
-        apps.dev = {
-          type = "app";
-          program = "${pkgs.writeShellScriptBin "oojsite-dev" ''
-            set -euo pipefail
-            echo "↪ Starting oojsite live dev mode…"
-            watchexec -r -e md,html,css -- \
-              nix run .#oojsite
-          ''}/bin/oojsite-dev";
+        apps = {
+          gen = {
+            type = "app";
+            program = "${runWrapper}/bin/oojsite";
+          };
+          dev = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "oojsite-dev" ''
+              set -euo pipefail
+              echo "↪ Starting oojsite live dev mode…"
+              watchexec -r -e md,html,css -- \
+                nix run .#oojsite
+            ''}/bin/oojsite-dev";
+          };
         };
       }
     );
