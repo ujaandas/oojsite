@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bloggor/internal/config"
-	"bloggor/internal/content"
-	"bloggor/internal/generate"
-	"bloggor/internal/render"
 	"log"
 	"os"
+
+	"oojsite/internal/config"
+	"oojsite/internal/content"
+	"oojsite/internal/generate"
+	"oojsite/internal/render"
 )
 
 func main() {
@@ -24,10 +25,6 @@ func main() {
 
 	if err := generate.CleanOutput(cfg.OutDir); err != nil {
 		logger.Fatalf("clean output: %v", err)
-	}
-
-	if err := generate.WriteStatic(cfg.OutDir); err != nil {
-		logger.Fatalf("writing static assets: %v", err)
 	}
 
 	tpl, err := render.LoadTemplates(cfg.TplDir)

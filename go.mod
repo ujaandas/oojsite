@@ -1,3 +1,3 @@
-module bloggor
+module oojsite
 
 go 1.24.5

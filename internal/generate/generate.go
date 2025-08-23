@@ -1,11 +1,11 @@
 package generate
 
 import (
-	"bloggor/internal/content"
-	"bloggor/internal/render"
 	"fmt"
 	"html/template"
 	"log"
+	"oojsite/internal/content"
+	"oojsite/internal/render"
 	"os"
 	"path/filepath"
 )

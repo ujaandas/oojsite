@@ -1,4 +1,4 @@
-# 🐾 Bloggor
+# 🐾 oojsite
 
 A tiny static blog generator written in Go.  
 Markdown in, HTML out - no fuss (except for me).

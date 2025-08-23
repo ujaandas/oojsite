@@ -19,7 +19,12 @@ func RenderIndex(tpl *template.Template, posts []PostMeta, outPath string) error
 	}
 	defer f.Close()
 
-	data := struct{ Posts []PostMeta }{posts}
+	data := struct {
+		Posts []PostMeta
+	}{
+		Posts: posts,
+	}
+
 	if err := tpl.ExecuteTemplate(f, IndexTpl, data); err != nil {
 		return fmt.Errorf("executing %s: %w", IndexTpl, err)
 	}

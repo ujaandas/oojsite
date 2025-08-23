@@ -1,7 +1,7 @@
 package render
 
 import (
-	"bloggor/assets"
+	"oojsite/assets"
 	"fmt"
 	"html/template"
 	"os"

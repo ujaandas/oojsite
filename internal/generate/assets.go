@@ -1,7 +1,7 @@
 package generate
 
 import (
-	"bloggor/assets"
+	"oojsite/assets"
 	"io"
 	"io/fs"
 	"os"
