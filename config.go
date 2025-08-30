@@ -5,15 +5,15 @@ import "flag"
 type Config struct {
 	SrcDir    string
 	OutDir    string
-	StaticDir string
+	PublicDir string
 	TplDir    string
 	Verbose   bool
 }
 
 func Load() *Config {
-	src := flag.String("src", "assets/content", "directory for markdown source files")
-	out := flag.String("out", "public", "output directory for generated site")
-	static := flag.String("static", "static", "static directory for static files")
+	src := flag.String("src", "site", "directory for markdown source files")
+	out := flag.String("out", "out", "output directory for generated site")
+	public := flag.String("public", "public", "public directory for public files")
 	tpl := flag.String("templates", "templates", "directory for HTML templates")
 	verbose := flag.Bool("verbose", false, "enable verbose logging")
 
@@ -22,7 +22,7 @@ func Load() *Config {
 	return &Config{
 		SrcDir:    *src,
 		OutDir:    *out,
-		StaticDir: *static,
+		PublicDir: *public,
 		TplDir:    *tpl,
 		Verbose:   *verbose,
 	}

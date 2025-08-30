@@ -28,9 +28,9 @@
 
           buildPhase = ''
             tailwindcss \
-              --input ${./assets/static/css/styles.css} \
+              --input ${./public/styles.css} \
               --output $out/public/styles.css \
-              --content "${./assets/templates}/*.html" "${./assets/content}/**/*.md" \
+              --content **/*.html \
               --minify
 
             mkdir -p $out/bin

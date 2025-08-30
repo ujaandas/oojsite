@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"oojsite/assets"
 	"os"
 	"path/filepath"
 )
 
 func LoadTemplates(tplDir string) (*template.Template, error) {
-	root, err := assets.Templates()
+	root, err := Templates()
 	if err != nil {
 		return nil, fmt.Errorf("parsing embedded templates: %w", err)
 	}

@@ -1,4 +1,4 @@
-package assets
+package main
 
 import (
 	"embed"
@@ -9,13 +9,13 @@ import (
 //go:embed templates/*.html
 var templateFS embed.FS
 
-//go:embed static/*
-var staticFS embed.FS
+//go:embed public/*
+var publicFS embed.FS
 
 func Templates() (*template.Template, error) {
 	return template.ParseFS(templateFS, "templates/*.html")
 }
 
 func Static() (fs.FS, error) {
-	return fs.Sub(staticFS, "static")
+	return fs.Sub(publicFS, "static")
 }
