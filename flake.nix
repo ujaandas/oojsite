@@ -34,12 +34,7 @@
             mkdir -p $out/bin
             go build -o $out/bin/oojsite .
           '';
-
-          installPhase = ''
-            $out/bin/oojsite --out $out/
-          '';
         };
-
       in
       {
         devShell = pkgs.mkShell {
@@ -53,6 +48,22 @@
         };
 
         defaultPackage = oojsite;
+
+        defaultApp = {
+          type = "app";
+          program = "${pkgs.writeShellScriptBin "oojsite-run" ''
+            tmpdir=$(mktemp -d)
+            echo "Generating site into $tmpdir"
+
+            mkdir -p "$tmpdir/public"
+            cp ${oojsite}/public/styles.css "$tmpdir/public/styles.css"
+
+            ${oojsite}/bin/oojsite --out "$tmpdir"
+
+            rm -f ./out
+            ln -s "$tmpdir" ./out
+          ''}/bin/oojsite-run";
+        };
       }
     );
 }
