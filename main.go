@@ -18,10 +18,6 @@ func main() {
 		logger.Fatalf("discover posts: %v", err)
 	}
 
-	if err := CleanOutput(cfg.OutDir); err != nil {
-		logger.Fatalf("clean output: %v", err)
-	}
-
 	tpl, err := LoadTemplates(cfg.TplDir)
 	if err != nil {
 		logger.Fatalf("load templates: %v", err)

@@ -4,16 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"os"
 	"path/filepath"
 )
-
-func CleanOutput(outDir string) error {
-	if err := os.RemoveAll(outDir); err != nil {
-		return fmt.Errorf("removing %q: %w", outDir, err)
-	}
-	return nil
-}
 
 func GenerateSite(
 	posts []PostMeta,
