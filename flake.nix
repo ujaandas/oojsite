@@ -28,12 +28,15 @@
 
           buildPhase = ''
             tailwindcss \
-              -i ${./assets/static/css/styles.css} \
-              -o $out/public/styles.css
+              --input ${./assets/static/css/styles.css} \
+              --output $out/public/styles.css \
+              --content "${./assets/templates}/*.html" "${./assets/content}/**/*.md" \
+              --minify
 
             mkdir -p $out/bin
             go build -o $out/bin/oojsite .
           '';
+
         };
       in
       {

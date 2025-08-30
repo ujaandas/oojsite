@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="public/styles.css">
 </head>
 
-<body class="bg-white text-gray-900 font-serif px-6 py-12 max-w-3xl mx-auto">
+<body class="bg-red-400 text-gray-900 font-serif px-6 py-12 max-w-3xl mx-auto">
   <header class="mb-12 border-b pb-6">
     <h1 class="text-4xl font-bold tracking-tight">All Posts</h1>
     <p class="text-lg text-gray-600 mt-2">Insights, commentary, and global perspectives</p>
@@ -15,11 +15,11 @@
 
   <main>
     <ul class="space-y-4">
-      {{- range .Posts }}
+      {{ range .Posts }}
       <li>
         <a href="{{ .Slug }}.html" class="text-xl text-blue-700 hover:underline">{{ .Title }}</a>
       </li>
-      {{- end }}
+      {{ end }}
     </ul>
   </main>
 </body>
