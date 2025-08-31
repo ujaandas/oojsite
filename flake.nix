@@ -22,7 +22,7 @@
           pname = "oojsite";
           version = "0.1.0";
           src = ./.;
-          vendorHash = null;
+          vendorHash = "sha256-gM37SLXNi4uY3uetmagNarbUvaFapQciajrguWVSd34=";
 
           nativeBuildInputs = with pkgs; [ tailwindcss ];
 
