@@ -39,7 +39,7 @@
 
         };
       in
-      {
+      rec {
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
@@ -51,21 +51,48 @@
         };
 
         defaultPackage = oojsite;
+        defaultApp = apps.oojsite-run;
 
-        defaultApp = {
-          type = "app";
-          program = "${pkgs.writeShellScriptBin "oojsite-run" ''
-            tmpdir=$(mktemp -d)
-            echo "Generating site into $tmpdir"
+        apps = {
+          oojsite-run = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "oojsite-run" ''
+              outdir="./out"
+              rm -rf $outdir
+              echo "Generating site into $outdir"
 
-            mkdir -p "$tmpdir/public"
-            cp ${oojsite}/public/styles.css "$tmpdir/public/styles.css"
+              mkdir -p "$outdir/public"
+              cp -r ${oojsite}/public/styles.css "$outdir/public/styles.css"
 
-            ${oojsite}/bin/oojsite --out "$tmpdir"
+              ${oojsite}/bin/oojsite --out "$outdir"
 
-            rm -f ./out
-            ln -s "$tmpdir" ./out
-          ''}/bin/oojsite-run";
+              echo "View site at file://$outdir/index.html"
+            ''}/bin/oojsite-run";
+          };
+
+          watch = {
+            type = "app";
+            program =
+              pkgs.buildEnv {
+                name = "oojsite-watch-env";
+                paths = [
+                  pkgs.watchexec
+                  (pkgs.writeShellScriptBin "oojsite-watch" ''
+                    echo "Watching for changes and regenerating site..."
+
+                    watchexec \
+                      --restart \
+                      --clear \
+                      --watch ./public \
+                      --watch ./templates \
+                      --watch ./site \
+                      --exts css,html,go,md \
+                      -- "${apps.oojsite-run.program}"
+                  '')
+                ];
+              }
+              + "/bin/oojsite-watch";
+          };
         };
       }
     );

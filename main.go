@@ -24,6 +24,7 @@ var pageFS embed.FS
 
 var (
 	outFlag string
+	siteUrl string
 )
 
 type PostMeta struct {
@@ -138,8 +139,16 @@ func processMarkdown(path string, tmpls *template.Template) {
 		return
 	}
 
-	// create output file
-	outPath := filepath.Join(outFlag, strings.TrimSuffix(filepath.Base(path), ".md")+".html")
+	// create output file + parent dirs
+	trimmedPath := strings.TrimPrefix(path, "site/")
+	pathWoSite := filepath.ToSlash(trimmedPath)
+
+	dirOutPath := filepath.Join(outFlag, filepath.Dir(pathWoSite))
+	if err := os.MkdirAll(dirOutPath, os.ModePerm); err != nil {
+		log.Printf("failed to create dirs %s: %v", filepath.Dir(pathWoSite), err)
+	}
+
+	outPath := filepath.Join(outFlag, strings.TrimSuffix(pathWoSite, ".md")+".html")
 	outFile, err := os.Create(outPath)
 	if err != nil {
 		log.Printf("failed to create output file %s: %v", outPath, err)
