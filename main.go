@@ -32,6 +32,11 @@ type Frontmatter struct {
 	Template string `yaml:"template"`
 }
 
+type FileContent struct {
+	meta    Frontmatter
+	content []byte
+}
+
 func init() {
 	flag.StringVar(&outFlag, "out", "out", "where to generate outputted site")
 }
@@ -101,7 +106,7 @@ func processHTMLPage(path string, pages *template.Template) {
 	}
 }
 
-func processFileContent(path string, content []byte) {
+func processFileContent(path string, content []byte) *FileContent {
 	// split frontmatter
 	parts := bytes.SplitN(content, []byte("---"), 3)
 	if len(parts) < 3 {
@@ -113,6 +118,11 @@ func processFileContent(path string, content []byte) {
 	if err := yaml.Unmarshal(parts[1], &meta); err != nil {
 		log.Fatalf("failed to parse front matter in %s: %v", path, err)
 	}
+
+	return &FileContent{
+		meta:    meta,
+		content: parts[2],
+	}
 }
 
 func processMarkdown(path string, tmpls *template.Template) {
@@ -122,28 +132,19 @@ func processMarkdown(path string, tmpls *template.Template) {
 		log.Fatalf("failed to read markdown file %s: %v", path, err)
 	}
 
-	// split front matter
-	parts := bytes.SplitN(content, []byte("---"), 3)
-	if len(parts) < 3 {
-		log.Fatalf("no frontmatter found in %s", path)
-	}
-
-	var meta Frontmatter
-	if err := yaml.Unmarshal(parts[1], &meta); err != nil {
-		log.Fatalf("failed to parse front matter in %s: %v", path, err)
-	}
+	fileContent := processFileContent(path, content)
 
 	// convert markdown to HTML
 	md := goldmark.New()
 	var buf bytes.Buffer
-	if err := md.Convert(parts[2], &buf); err != nil {
+	if err := md.Convert(fileContent.content, &buf); err != nil {
 		log.Fatalf("failed to convert markdown in %s: %v", path, err)
 	}
 
 	// apply template
-	tmpl := tmpls.Lookup(fmt.Sprintf("%s.html", meta.Template))
+	tmpl := tmpls.Lookup(fmt.Sprintf("%s.html", fileContent.meta.Template))
 	if tmpl == nil {
-		log.Fatalf("template %s not found for %s", meta.Template, path)
+		log.Fatalf("template %s not found for %s", fileContent.meta.Template, path)
 	}
 
 	// create output file + parent dirs
@@ -164,7 +165,7 @@ func processMarkdown(path string, tmpls *template.Template) {
 
 	// write output file
 	err = tmpl.Execute(outFile, map[string]any{
-		"Title":   meta.Title,
+		"Title":   fileContent.meta.Title,
 		"Content": template.HTML(buf.String()),
 	})
 	if err != nil {
