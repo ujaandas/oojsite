@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -44,7 +45,7 @@ type BlogPost struct {
 type BlogTemplate struct {
 	Title   string
 	Content template.HTML
-	Params  map[string]any
+	Rest    map[string]any
 }
 
 type PageTemplate map[string][]BlogPost
@@ -159,6 +160,7 @@ func processMarkdown(path string, tmpls *template.Template) {
 	err = tmpl.Execute(outFile, BlogTemplate{
 		Title:   fileContent.Meta.Title,
 		Content: template.HTML(buf.String()),
+		Rest:    structToMap(fileContent.Meta),
 	})
 	if err != nil {
 		log.Fatalf("failed to execute template for %s: %v", path, err)
@@ -196,4 +198,24 @@ func sortedPosts(posts []BlogPost) []BlogPost {
 		return sorted[i].Meta.Title < sorted[j].Meta.Title // sort by title
 	})
 	return sorted
+}
+
+func structToMap(input any) map[string]any {
+	result := make(map[string]any)
+	val := reflect.ValueOf(input)
+	typ := reflect.TypeOf(input)
+
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+		typ = typ.Elem()
+	}
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		if field.Name == "Title" || field.Name == "Content" {
+			continue
+		}
+		result[field.Name] = val.Field(i).Interface()
+	}
+	return result
 }
