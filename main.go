@@ -28,8 +28,10 @@ var (
 )
 
 type Frontmatter struct {
-	Title    string `yaml:"title"`
-	Template string `yaml:"template"`
+	Title    string         `yaml:"title"`
+	Template string         `yaml:"template"`
+	Tags     []string       `yaml:"tags,omitempty"`
+	Params   map[string]any `yaml:",inline"`
 }
 
 type FileContent struct {
@@ -78,6 +80,7 @@ type indexTmpl struct {
 }
 
 func processHTMLPage(path string, pages *template.Template) {
+	// get filename
 	filename := filepath.Base(path)
 
 	// apply template
@@ -106,7 +109,7 @@ func processHTMLPage(path string, pages *template.Template) {
 	}
 }
 
-func processFileContent(path string, content []byte) *FileContent {
+func extractFileContent(path string, content []byte) *FileContent {
 	// split frontmatter
 	parts := bytes.SplitN(content, []byte("---"), 3)
 	if len(parts) < 3 {
@@ -132,7 +135,7 @@ func processMarkdown(path string, tmpls *template.Template) {
 		log.Fatalf("failed to read markdown file %s: %v", path, err)
 	}
 
-	fileContent := processFileContent(path, content)
+	fileContent := extractFileContent(path, content)
 
 	// convert markdown to HTML
 	md := goldmark.New()
