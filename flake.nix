@@ -72,26 +72,18 @@
 
           watch = {
             type = "app";
-            program =
-              pkgs.buildEnv {
-                name = "oojsite-watch-env";
-                paths = [
-                  pkgs.watchexec
-                  (pkgs.writeShellScriptBin "oojsite-watch" ''
-                    echo "Watching for changes and regenerating site..."
+            program = "${pkgs.writeShellScriptBin "oojsite-watch" ''
+              echo "Watching for changes and regenerating site..."
 
-                    watchexec \
-                      --restart \
-                      --clear \
-                      --watch ./public \
-                      --watch ./templates \
-                      --watch ./site \
-                      --exts css,html,go,md \
-                      -- "${apps.oojsite-run.program}"
-                  '')
-                ];
-              }
-              + "/bin/oojsite-watch";
+              watchexec \
+                --restart \
+                --clear \
+                --watch ./public \
+                --watch ./templates \
+                --watch ./site \
+                --exts css,html,go,md \
+                -- nix run
+            ''}/bin/oojsite-watch";
           };
         };
       }
