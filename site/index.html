@@ -9,9 +9,9 @@
 </head>
 
 <body class="bg-red-200">
-  {{ range .Posts}}
+  {{ range .posts}}
   <div>
-    {{ .Title }}
+    {{ .Meta.Title }}
   </div>
   {{ end }}
 
