@@ -35,6 +35,7 @@ Once you've written whatever content you wanted, just hit `nix run` - it will ta
 
 ## 🐛 Known Bugs
 
+- Sometimes, for no apparent reason, it builds _really_ fast (feature, not a bug, perhaps?)
 - If you make and save changes too quickly, your Nix cache might get locked (ie; `error: SQLite database ... is busy`)
 - The above will happen, but Nix will simply ignore (?) it
 - Sometimes, permissions on `out/` may get garbled up - just delete it and re-run to fix it
