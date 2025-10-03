@@ -24,9 +24,6 @@ var tmplFS embed.FS
 //go:embed site/*.html
 var pageFS embed.FS
 
-//go:embed public
-var public embed.FS
-
 var (
 	outFlag string
 )

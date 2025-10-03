@@ -29,7 +29,6 @@
             tailwindcss \
               --input ./public/styles.css \
               --output $out/public/styles.css \
-              --content **/*.html \
               --minify \
               --config ./tailwind.config.js
 

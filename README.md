@@ -17,6 +17,7 @@ Markdown in, HTML out - no fuss (except for me, who had to deal with Nix and Tai
 I built `oojsite` to be as simple as possible. No DSL or weird templating syntax (ahem, ahem, _Jekyll_).
 
 - You can insert any post into any page template by using your blog post "tags" frontmatter (i.e; tags: ["posts"] -> {{ .posts }})
+- Files you want in your output **MUST BE TRACKED!!!** (ie; `git add site/blog.html`, but not `out/blog.html`)
 - You can use TailwindCSS or just regular CSS rules
 - Your public/static content (ie; scripts, CSS, assets, etc...) go in `public/`
 - Any templates you want for your blog posts, write them in `templates/`, and use the "template" frontmatter to match it
