@@ -63,10 +63,10 @@
               rm -rf $outdir
               echo "Generating site into $outdir"
 
-              mkdir -p "$outdir/public"
-              cp -r ${oojsite}/public/styles.css "$outdir/public/styles.css"
-
               ${oojsite}/bin/oojsite --out "$outdir"
+
+              mkdir -p "$outdir/public"
+              cp -r ${oojsite}/public/. "$outdir/public/"
 
               echo "View site at file://$outdir/index.html"
             ''}/bin/oojsite-run";

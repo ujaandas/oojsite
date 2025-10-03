@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -22,6 +23,9 @@ var tmplFS embed.FS
 
 //go:embed site/*.html
 var pageFS embed.FS
+
+//go:embed public
+var public embed.FS
 
 var (
 	outFlag string
@@ -55,7 +59,6 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fmt.Printf("out flag: %s\n", outFlag)
 
 	// load templates
 	tmpls, err := template.ParseFS(tmplFS, "templates/*.html", "site/*.html")
@@ -67,6 +70,9 @@ func main() {
 	if err := os.MkdirAll(outFlag, os.ModePerm); err != nil {
 		log.Fatalf("failed to create output directory: %v", err)
 	}
+
+	// copy public dir
+	copyContents("public", "out/public")
 
 	// process markdown
 	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
@@ -83,6 +89,59 @@ func main() {
 		}
 		return nil
 	})
+}
+
+func copyContents(srcDir, dstDir string) {
+	err := filepath.Walk(srcDir, func(srcPath string, info os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			log.Fatalf("walk error at %s: %v", srcPath, walkErr)
+		}
+
+		// derive relative path to mirror structure in dstDir
+		relPath, err := filepath.Rel(srcDir, srcPath)
+		if err != nil {
+			log.Fatalf("cannot compute relative path for %s: %v", srcPath, err)
+		}
+		dstPath := filepath.Join(dstDir, relPath)
+
+		if info.IsDir() {
+			// ensure directory exists at destination
+			if err := os.MkdirAll(dstPath, os.ModePerm); err != nil {
+				log.Fatalf("mkdir failed for %s: %v", dstPath, err)
+			}
+			return nil
+		}
+
+		// open source file for reading
+		srcFile, err := os.Open(srcPath)
+		if err != nil {
+			log.Fatalf("cannot open source file %s: %v", srcPath, err)
+		}
+		defer srcFile.Close()
+
+		// ensure parent directory exists for destination file
+		if err := os.MkdirAll(filepath.Dir(dstPath), os.ModePerm); err != nil {
+			log.Fatalf("mkdir failed for parent of %s: %v", dstPath, err)
+		}
+
+		// create destination file for writing
+		dstFile, err := os.Create(dstPath)
+		if err != nil {
+			log.Fatalf("cannot create destination file %s: %v", dstPath, err)
+		}
+		defer dstFile.Close()
+
+		// copy file contents from src to dst
+		if _, err := io.Copy(dstFile, srcFile); err != nil {
+			log.Fatalf("copy failed from %s to %s: %v", srcPath, dstPath, err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Fatalf("directory walk failed: %v", err)
+	}
 }
 
 func processHTMLPage(path string, pages *template.Template) {
@@ -112,7 +171,7 @@ func processHTMLPage(path string, pages *template.Template) {
 	// write output file
 	err = tmpl.Execute(outFile, data)
 	if err != nil {
-		log.Printf("failed to execute template for %s: %v", path, err)
+		log.Fatalf("failed to execute template for %s: %v", path, err)
 	}
 }
 
@@ -144,7 +203,7 @@ func processMarkdown(path string, tmpls *template.Template) {
 
 	dirOutPath := filepath.Join(outFlag, filepath.Dir(pathWoSite))
 	if err := os.MkdirAll(dirOutPath, os.ModePerm); err != nil {
-		log.Printf("failed to create dirs %s: %v", filepath.Dir(pathWoSite), err)
+		log.Fatalf("failed to create dirs %s: %v", filepath.Dir(pathWoSite), err)
 	}
 
 	outPath := filepath.Join(outFlag, strings.TrimSuffix(pathWoSite, ".md")+".html")
