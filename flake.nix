@@ -28,10 +28,12 @@
 
           buildPhase = ''
             tailwindcss \
-              --input ${./public/styles.css} \
+              --input ./public/styles.css \
               --output $out/public/styles.css \
               --content **/*.html \
-              --minify
+              --minify \
+              --config ./tailwind.config.js
+
 
             mkdir -p $out/bin
             go build -o $out/bin/oojsite .
