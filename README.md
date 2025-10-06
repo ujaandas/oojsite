@@ -25,7 +25,7 @@ I built `oojsite` to be as simple as possible. No DSL or weird templating syntax
 
 Once you've written whatever content you wanted, just hit `nix run` - it will take care of the rest and give you your built website in `out/`.
 
-> Hint: Use `nix run .#watch` to track changes across your content for live-reloads.
+> Hint: Use `nix run .#watch-(no-)rb` to track changes across your content for live-reloads.
 
 ## 📋 TODO
 

@@ -70,7 +70,23 @@
             ''}/bin/oojsite-run";
           };
 
-          watch = {
+          watch-rb = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "oojsite-watch" ''
+              echo "Watching for changes and regenerating site..."
+
+              watchexec \
+                --restart \
+                --clear \
+                --watch ./public \
+                --watch ./templates \
+                --watch ./site \
+                --exts css,html,go,md \
+                -- nix run
+            ''}/bin/oojsite-watch";
+          };
+
+          watch-no-rb = {
             type = "app";
             program = "${pkgs.writeShellScriptBin "oojsite-watch" ''
               echo "Watching site templates and regenerating..."
