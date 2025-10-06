@@ -73,16 +73,26 @@
           watch = {
             type = "app";
             program = "${pkgs.writeShellScriptBin "oojsite-watch" ''
-              echo "Watching for changes and regenerating site..."
+              echo "Watching site templates and regenerating..."
 
               watchexec \
                 --restart \
                 --clear \
-                --watch ./public \
                 --watch ./templates \
                 --watch ./site \
-                --exts css,html,go,md \
-                -- nix run
+                --watch ./public \
+                --exts html,go,md,css \
+                -- 'tmpdir=$(mktemp -d);
+                  go run . --out $tmpdir || exit 1;
+
+                  tailwindcss \
+                    --input ./public/styles.css \
+                    --output "$tmpdir/public/styles.css" \
+                    --minify \
+                    --config ./tailwind.config.js || exit 1;
+
+                  cp -r $tmpdir/public/. ./out/public/
+                '
             ''}/bin/oojsite-watch";
           };
         };

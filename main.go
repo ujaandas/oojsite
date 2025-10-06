@@ -69,7 +69,7 @@ func main() {
 	}
 
 	// copy public dir
-	copyContents("public", "out/public")
+	copyContents("public", fmt.Sprintf("%s/public", outFlag))
 
 	// process markdown
 	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
