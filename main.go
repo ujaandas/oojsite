@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"embed"
 	"flag"
@@ -39,7 +40,8 @@ type Frontmatter struct {
 
 type BlogPost struct {
 	Meta    Frontmatter
-	Content []byte
+	Snippet string
+	Raw     []byte
 }
 
 type BlogTemplate struct {
@@ -184,7 +186,7 @@ func processMarkdown(path string, tmpls *template.Template) {
 	// convert markdown to HTML
 	md := goldmark.New()
 	var buf bytes.Buffer
-	if err := md.Convert(fileContent.Content, &buf); err != nil {
+	if err := md.Convert(fileContent.Raw, &buf); err != nil {
 		log.Fatalf("failed to convert markdown in %s: %v", path, err)
 	}
 
@@ -240,10 +242,36 @@ func extractFileContent(path string, content []byte) *BlogPost {
 		log.Fatalf("failed to parse front matter in %s: %v", path, err)
 	}
 
+	// TODO: converts parts[2] to actual char, and implement snippet
 	return &BlogPost{
 		Meta:    meta,
-		Content: parts[2],
+		Snippet: makeSnippet(parts[2]),
+		Raw:     parts[2],
 	}
+}
+
+func makeSnippet(raw []byte) string {
+	const wordCount = 20
+	scanner := bufio.NewScanner(bytes.NewReader(raw))
+	words := []string{}
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		for word := range strings.FieldsSeq(line) {
+			words = append(words, word)
+			if len(words) >= wordCount {
+				break
+			}
+		}
+		if len(words) >= wordCount {
+			break
+		}
+	}
+
+	return strings.Join(words, " ") + "..."
 }
 
 func sortedPosts(posts []BlogPost) []BlogPost {

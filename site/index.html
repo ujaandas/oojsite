@@ -16,19 +16,19 @@
     <img src="public/pfp.webp" alt="Profile picture" class="w-40 h-auto mb-4" />
 
     <nav class="hidden md:flex md:flex-col md:gap-2 text-sm">
-      <a href="https://github.com/yourusername" class="flex items-center gap-2 hover:underline">
+      <a href="https://github.com/ujaandas" target="_blank" class="flex items-center gap-2 hover:underline">
         <i class="fab fa-github"></i> GitHub
       </a>
-      <a href="https://linkedin.com/in/yourusername" class="flex items-center gap-2 hover:underline">
+      <a href="https://linkedin.com/in/ujaandas" target="_blank" class="flex items-center gap-2 hover:underline">
         <i class="fab fa-linkedin"></i> LinkedIn
       </a>
-      <a href="https://instagram.com/yourusername" class="flex items-center gap-2 hover:underline">
+      <a href="https://instagram.com/ujaa_das" target="_blank" class="flex items-center gap-2 hover:underline">
         <i class="fab fa-instagram"></i> Instagram
       </a>
-      <a href="public/resume.pdf" class="flex items-center gap-2 hover:underline">
+      <a href="public/resume.pdf" target="_blank" class="flex items-center gap-2 hover:underline">
         <i class="fas fa-file-alt"></i> Resume
       </a>
-      <a href="mailto:you@example.com" class="flex items-center gap-2 hover:underline">
+      <a href="mailto:ujaandas03@gmail.com" target="_blank" class="flex items-center gap-2 hover:underline">
         <i class="fas fa-envelope"></i> Email
       </a>
     </nav>
@@ -70,12 +70,16 @@
         <a href="projects.html" class="text-xl text-blue-600 font-semibold mb-2 hover:underline">Projects →</a>
         <p class="text-sm text-gray-600 mb-2">Coming soon...</p>
       </section>
+
+      {{ range .posts }}
+        {{ .Snippet }}
+      {{ end }}
     </div>
   </main>
 
-  <footer class="flex flex-row text-center text-sm text-gray-500 mt-12 mb-4">
-    <p>© 2025 Ujaan Das </p>
-    <a href="url" class="mb-4"> @2492c87</a>
+  <footer class="flex flex-col justify-center text-center text-sm text-gray-500 mt-12 mb-4">
+    <a href="url" class="mb-4">@2492c87</a>
+    <p>© 2025 Ujaan Das</p>
   </footer>
 </body>
 

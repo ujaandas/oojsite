@@ -81,6 +81,7 @@
                 --watch ./public \
                 --watch ./templates \
                 --watch ./site \
+                --watch ./main.go \
                 --exts css,html,go,md \
                 -- nix run
             ''}/bin/oojsite-watch";
