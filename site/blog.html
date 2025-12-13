@@ -37,35 +37,21 @@
     <div class="md:mt-10 flex-grow">
       <h1 class="text-3xl font-bold mb-6">My Thoughts on the World 📝</h1>
 
-      <article class="mb-6">
-        <h2 class="text-xl font-semibold text-blue-700 hover:underline">
-          <a href="/blog/post1">Why I Love Go for Backend</a>
-        </h2>
-        <p class="text-sm text-gray-500 mb-2">October 1, 2025</p>
-        <p class="text-base text-gray-700">Go’s simplicity and concurrency model make it a joy to work with. Here’s how I’ve used it in recent projects...</p>
-      </article>
-
-      <article class="mb-6">
-        <h2 class="text-xl font-semibold text-blue-700 hover:underline">
-          <a href="/blog/post2">Parsing Java with ASTs</a>
-        </h2>
-        <p class="text-sm text-gray-500 mb-2">September 20, 2025</p>
-        <p class="text-base text-gray-700">Exploring how abstract syntax trees helped me analyze and transform Java code for a research project...</p>
-      </article>
-
-      <article class="mb-6">
-        <h2 class="text-xl font-semibold text-blue-700 hover:underline">
-          <a href="/blog/post3">Satellites, Maps, and Web Apps</a>
-        </h2>
-        <p class="text-sm text-gray-500 mb-2">September 5, 2025</p>
-        <p class="text-base text-gray-700">A look into how I built a geospatial platform that ingests satellite data and visualizes it in the browser...</p>
-      </article>
+      {{ range .posts }}
+        <article class="mb-6">
+          <h2 class="text-xl font-semibold text-blue-700 hover:underline">
+            <a href={{ .Filepath }}>{{ .Meta.Title }}</a>
+          </h2>
+          <p class="text-sm text-gray-500 mb-2">September 5, 2025</p>
+          <p class="text-base text-gray-700">{{ .Snippet }}</p>
+        </article>
+      {{ end }}
     </div>
   </main>
 
-  <footer class="flex flex-row text-center text-sm text-gray-500 mt-12 mb-4">
-    <p>© 2025 Ujaan Das </p>
-    <a href="url" class="mb-4"> @2492c87</a>
+  <footer class="flex flex-col justify-center text-center text-sm text-gray-500 mt-12 mb-4">
+    <a href="url" class="mb-1">@2492c87</a>
+    <p>© 2025 Ujaan Das</p>
   </footer>
 </body>
 

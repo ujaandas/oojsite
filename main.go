@@ -39,9 +39,10 @@ type Frontmatter struct {
 }
 
 type BlogPost struct {
-	Meta    Frontmatter
-	Snippet string
-	Raw     []byte
+	Meta     Frontmatter
+	Filepath string
+	Snippet  string
+	Raw      []byte
 }
 
 type BlogTemplate struct {
@@ -242,11 +243,14 @@ func extractFileContent(path string, content []byte) *BlogPost {
 		log.Fatalf("failed to parse front matter in %s: %v", path, err)
 	}
 
-	// TODO: converts parts[2] to actual char, and implement snippet
+	// get relative filepath
+	relFp := strings.TrimPrefix(strings.TrimSuffix(path, filepath.Ext(path))+".html", "site/")
+
 	return &BlogPost{
-		Meta:    meta,
-		Snippet: makeSnippet(parts[2]),
-		Raw:     parts[2],
+		Meta:     meta,
+		Filepath: relFp,
+		Snippet:  makeSnippet(parts[2]),
+		Raw:      parts[2],
 	}
 }
 
