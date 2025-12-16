@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"embed"
-	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -24,10 +23,6 @@ var tmplFS embed.FS
 
 //go:embed site/*.html
 var pageFS embed.FS
-
-var (
-	outFlag string
-)
 
 var tagPostMap = make(map[string][]BlogPost) // tag -> posts
 
@@ -53,12 +48,11 @@ type BlogTemplate struct {
 
 type PageTemplate map[string][]BlogPost
 
-func init() {
-	flag.StringVar(&outFlag, "out", "out", "where to generate outputted site")
-}
-
 func main() {
-	flag.Parse()
+	cfg, err := parseFlags()
+	if err != nil {
+		log.Fatalf("Failed to initialize config: %v", err)
+	}
 
 	// load templates
 	tmpls, err := template.ParseFS(tmplFS, "templates/*.html", "site/*.html")
@@ -67,24 +61,24 @@ func main() {
 	}
 
 	// create output directory
-	if err := os.MkdirAll(outFlag, os.ModePerm); err != nil {
+	if err := os.MkdirAll(cfg.outDir, os.ModePerm); err != nil {
 		log.Fatalf("failed to create output directory: %v", err)
 	}
 
 	// Build and compile TailwindCSS
-	if err := buildTailwind(outFlag); err != nil {
+	if err := buildTailwind(cfg.outDir); err != nil {
 		log.Fatalf("Failed to build TailwindCSS: %v", err)
 	}
 
 	// Copy over static files
-	if err := copyStaticContents("static", fmt.Sprintf("%s/static", outFlag)); err != nil {
+	if err := copyStaticContents("static", fmt.Sprintf("%s/static", cfg.outDir)); err != nil {
 		log.Fatalf("Failed to copy static files: %v", err)
 	}
 
 	// process markdown
 	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
-			processMarkdown(path, tmpls)
+			processMarkdown(path, cfg.outDir, tmpls)
 		}
 		return nil
 	})
@@ -92,7 +86,7 @@ func main() {
 	// process pages
 	fs.WalkDir(pageFS, "site", func(path string, d fs.DirEntry, err error) error {
 		if strings.HasSuffix(path, ".html") {
-			processHTMLPage(path, tmpls)
+			processHTMLPage(path, cfg.outDir, tmpls)
 		}
 		return nil
 	})
@@ -151,7 +145,7 @@ func copyContents(srcDir, dstDir string) {
 	}
 }
 
-func processHTMLPage(path string, pages *template.Template) {
+func processHTMLPage(path, outDir string, pages *template.Template) {
 	// get filename
 	filename := filepath.Base(path)
 
@@ -162,7 +156,7 @@ func processHTMLPage(path string, pages *template.Template) {
 	}
 
 	// create output file
-	outPath := filepath.Join(outFlag, filename)
+	outPath := filepath.Join(outDir, filename)
 	outFile, err := os.Create(outPath)
 	if err != nil {
 		log.Fatalf("failed to create output file %s: %v", outPath, err)
@@ -182,7 +176,7 @@ func processHTMLPage(path string, pages *template.Template) {
 	}
 }
 
-func processMarkdown(path string, tmpls *template.Template) {
+func processMarkdown(path, outDir string, tmpls *template.Template) {
 	// read file
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -208,12 +202,12 @@ func processMarkdown(path string, tmpls *template.Template) {
 	trimmedPath := strings.TrimPrefix(path, "site/")
 	pathWoSite := filepath.ToSlash(trimmedPath)
 
-	dirOutPath := filepath.Join(outFlag, filepath.Dir(pathWoSite))
+	dirOutPath := filepath.Join(outDir, filepath.Dir(pathWoSite))
 	if err := os.MkdirAll(dirOutPath, os.ModePerm); err != nil {
 		log.Fatalf("failed to create dirs %s: %v", filepath.Dir(pathWoSite), err)
 	}
 
-	outPath := filepath.Join(outFlag, strings.TrimSuffix(pathWoSite, ".md")+".html")
+	outPath := filepath.Join(outDir, strings.TrimSuffix(pathWoSite, ".md")+".html")
 	outFile, err := os.Create(outPath)
 	if err != nil {
 		log.Fatalf("failed to create output file %s: %v", outPath, err)
