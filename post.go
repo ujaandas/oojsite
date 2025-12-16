@@ -3,7 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html/template"
+	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/kaleocheng/goldmark"
@@ -28,14 +31,57 @@ type Frontmatter struct {
 }
 
 type Post struct {
-	Meta     Frontmatter
-	Filepath string
-	Snippet  string
-	Raw      []byte
+	Frontmatter Frontmatter
+	Filepath    string
+	Snippet     string
+	Raw         []byte
+}
+
+func processPost(path, outDir string, tmpls *template.Template) error {
+	// Read file
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	// Extract frontmatter
+	post, err := extractFrontmatter(path, content)
+	if err != nil {
+		return err
+	}
+
+	// Convert markdown to HTML
+	md := goldmark.New()
+	var buf bytes.Buffer
+	if err := md.Convert(post.Raw, &buf); err != nil {
+		return err
+	}
+
+	// Apply template
+	tmpl := tmpls.Lookup(fmt.Sprintf("%s.html", post.Frontmatter.Template))
+	if tmpl == nil {
+		return err
+	}
+
+	// Write outputted file
+	if err := writePostFile(path, outDir, tmpl, post, buf); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func sortedPosts(posts []Post) []Post {
+	sorted := make([]Post, len(posts))
+	copy(sorted, posts)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return sorted[i].Frontmatter.Title < sorted[j].Frontmatter.Title // sort by title
+	})
+	return sorted
 }
 
 // Process and extract frontmatter, converting markdown file to our struct.
-func extractFrontmatter(path string, content []byte) (*BlogPost, error) {
+func extractFrontmatter(path string, content []byte) (*Post, error) {
 	// Split frontmatter
 	parts := bytes.SplitN(content, []byte("---"), 3)
 	if len(parts) < 3 {
@@ -43,23 +89,23 @@ func extractFrontmatter(path string, content []byte) (*BlogPost, error) {
 	}
 
 	// Split parts (parts[0] is preamble, should be empty and we don't care about it anyways)
-	frontmatter := parts[1]
-	body := parts[2]
+	rawFrontmatter := parts[1]
+	rawBody := parts[2]
 
 	// Unmarshal and read
-	var meta Frontmatter
-	if err := yaml.Unmarshal(frontmatter, &meta); err != nil {
+	var frontmatter Frontmatter
+	if err := yaml.Unmarshal(rawFrontmatter, &frontmatter); err != nil {
 		return nil, fmt.Errorf("failed to parse front matter in %s: %v", path, err)
 	}
 
 	// Get relative filepath
 	relFp := strings.TrimPrefix(strings.TrimSuffix(path, filepath.Ext(path))+".html", "site/")
 
-	return &BlogPost{
-		Meta:     meta,
-		Filepath: relFp,
-		Snippet:  makeSnippet(body, 20),
-		Raw:      body,
+	return &Post{
+		Frontmatter: frontmatter,
+		Filepath:    relFp,
+		Snippet:     makeSnippet(rawBody, 20),
+		Raw:         rawBody,
 	}, nil
 }
 
@@ -92,4 +138,38 @@ func extractText(raw []byte) string {
 
 	walk(doc)
 	return b.String()
+}
+
+// Write outputted HTML file
+func writePostFile(src, dst string, tmpl *template.Template, post *Post, contentBuf bytes.Buffer) error {
+	// Create output file + parent dirs
+	trimmedPath := strings.TrimPrefix(src, "site/")
+	pathWoSite := filepath.ToSlash(trimmedPath)
+
+	dirOutPath := filepath.Join(dst, filepath.Dir(pathWoSite))
+	if err := os.MkdirAll(dirOutPath, os.ModePerm); err != nil {
+		return err
+	}
+
+	outPath := filepath.Join(dst, strings.TrimSuffix(pathWoSite, ".md")+".html")
+	outFile, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	// Write output file
+	if err := tmpl.Execute(outFile, BlogTemplate{
+		Title:   post.Frontmatter.Title,
+		Content: template.HTML(contentBuf.String()),
+	}); err != nil {
+		return err
+	}
+
+	// collect tags and map posts
+	for _, tag := range post.Frontmatter.Tags {
+		tagPostMap[tag] = append(tagPostMap[tag], *post)
+	}
+
+	return nil
 }
