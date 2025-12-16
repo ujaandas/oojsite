@@ -58,13 +58,15 @@ func validateDirs(cfg *Config) error {
 func ensureDir(path string) error {
 	// Check permissions
 	stat, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
 
 	// Create if missing
 	if os.IsNotExist(err) {
 		return os.MkdirAll(path, 0755)
+	}
+
+	// Now check errors to avoid "no such file or directory" error if not already created
+	if err != nil {
+		return err
 	}
 
 	// Check it really is a directory

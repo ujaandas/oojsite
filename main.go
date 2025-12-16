@@ -60,11 +60,6 @@ func main() {
 		log.Fatalf("failed to parse templates: %v", err)
 	}
 
-	// create output directory
-	if err := os.MkdirAll(cfg.outDir, os.ModePerm); err != nil {
-		log.Fatalf("failed to create output directory: %v", err)
-	}
-
 	// Build and compile TailwindCSS
 	if err := buildTailwind(cfg.outDir); err != nil {
 		log.Fatalf("Failed to build TailwindCSS: %v", err)
