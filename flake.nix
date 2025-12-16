@@ -32,11 +32,9 @@
               --minify \
               --config ./tailwind.config.js
 
-
             mkdir -p $out/bin
             go build -o $out/bin/oojsite .
           '';
-
         };
       in
       rec {

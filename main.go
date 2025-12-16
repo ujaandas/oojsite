@@ -71,8 +71,15 @@ func main() {
 		log.Fatalf("failed to create output directory: %v", err)
 	}
 
-	// copy public dir
-	copyContents("public", fmt.Sprintf("%s/public", outFlag))
+	// Build and compile TailwindCSS
+	if err := buildTailwind(outFlag); err != nil {
+		log.Fatalf("Failed to build TailwindCSS: %v", err)
+	}
+
+	// Copy over static files
+	if err := copyStaticContents("static", fmt.Sprintf("%s/static", outFlag)); err != nil {
+		log.Fatalf("Failed to copy static files: %v", err)
+	}
 
 	// process markdown
 	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
