@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"embed"
 	"fmt"
@@ -15,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/kaleocheng/goldmark"
-	"gopkg.in/yaml.v2"
 )
 
 //go:embed templates/*.html site/*.html
@@ -25,13 +23,6 @@ var tmplFS embed.FS
 var pageFS embed.FS
 
 var tagPostMap = make(map[string][]BlogPost) // tag -> posts
-
-type Frontmatter struct {
-	Title    string         `yaml:"title"`
-	Template string         `yaml:"template"`
-	Tags     []string       `yaml:"tags,omitempty"`
-	Misc     map[string]any `yaml:",inline"`
-}
 
 type BlogPost struct {
 	Meta     Frontmatter
@@ -178,7 +169,10 @@ func processMarkdown(path, outDir string, tmpls *template.Template) {
 		log.Fatalf("failed to read markdown file %s: %v", path, err)
 	}
 
-	fileContent := extractFileContent(path, content)
+	fileContent, err := extractFrontmatter(path, content)
+	if err != nil {
+		log.Fatalf("Failed to extract frontmatter: %v", err)
+	}
 
 	// convert markdown to HTML
 	md := goldmark.New()
@@ -214,7 +208,7 @@ func processMarkdown(path, outDir string, tmpls *template.Template) {
 	err = tmpl.Execute(outFile, BlogTemplate{
 		Title:   fileContent.Meta.Title,
 		Content: template.HTML(buf.String()),
-		Misc:    fileContent.Meta.Misc,
+		// Misc:    fileContent.Meta.Misc,
 	})
 	if err != nil {
 		log.Fatalf("failed to execute template for %s: %v", path, err)
@@ -224,54 +218,6 @@ func processMarkdown(path, outDir string, tmpls *template.Template) {
 	for _, tag := range fileContent.Meta.Tags {
 		tagPostMap[tag] = append(tagPostMap[tag], *fileContent)
 	}
-}
-
-func extractFileContent(path string, content []byte) *BlogPost {
-	// split frontmatter
-	parts := bytes.SplitN(content, []byte("---"), 3)
-	if len(parts) < 3 {
-		log.Fatalf("no frontmatter found in %s", content)
-	}
-
-	// unmarshal and read
-	var meta Frontmatter
-	if err := yaml.Unmarshal(parts[1], &meta); err != nil {
-		log.Fatalf("failed to parse front matter in %s: %v", path, err)
-	}
-
-	// get relative filepath
-	relFp := strings.TrimPrefix(strings.TrimSuffix(path, filepath.Ext(path))+".html", "site/")
-
-	return &BlogPost{
-		Meta:     meta,
-		Filepath: relFp,
-		Snippet:  makeSnippet(parts[2]),
-		Raw:      parts[2],
-	}
-}
-
-func makeSnippet(raw []byte) string {
-	const wordCount = 20
-	scanner := bufio.NewScanner(bytes.NewReader(raw))
-	words := []string{}
-
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		for word := range strings.FieldsSeq(line) {
-			words = append(words, word)
-			if len(words) >= wordCount {
-				break
-			}
-		}
-		if len(words) >= wordCount {
-			break
-		}
-	}
-
-	return strings.Join(words, " ") + "..."
 }
 
 func sortedPosts(posts []BlogPost) []BlogPost {
