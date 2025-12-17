@@ -20,7 +20,7 @@ type Config struct {
 	templateDir string
 }
 
-func parseFlags() (*Config, error) {
+func parseOptions() (*Config, error) {
 	cfg := &Config{}
 
 	flag.StringVar(&cfg.outDir, "outDir", "out", "Path to generate site in")
