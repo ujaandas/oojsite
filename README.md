@@ -4,7 +4,7 @@ A tiny and ergonomic static blog generator written in Go.
 Markdown in, HTML out - no fuss.
 
 ## 👾 Example
-Check out my own (blog)[https://github.com/ujaandas/ujaandas.github.io/] for an example. You can also use the `flake.nix` there as a starter template.
+Check out my own [blog](https://github.com/ujaandas/ujaandas.github.io/) for an example. You can also use the `flake.nix` there as a starter template.
 
 ## 🗂️ Project Structure
 
