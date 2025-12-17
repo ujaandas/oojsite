@@ -27,6 +27,9 @@
         };
       in
       {
+        defaultPackage = oojsite;
+        packages.oojsite = oojsite;
+
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
@@ -36,8 +39,6 @@
             watchexec
           ];
         };
-        defaultPackage = oojsite;
-        packages.${system}.oojsite = oojsite;
       }
     );
 }
