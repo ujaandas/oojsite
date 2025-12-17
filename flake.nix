@@ -22,6 +22,16 @@
           version = "0.1.0";
           src = ./.;
           vendorHash = "sha256-gM37SLXNi4uY3uetmagNarbUvaFapQciajrguWVSd34=";
+          buildInputs = with pkgs; [
+            makeWrapper
+            tailwindcss
+          ];
+
+          postInstall = ''
+            wrapProgram $out/bin/oojsite \
+              --prefix PATH : "${pkgs.tailwindcss}/bin"
+          '';
+
         };
       in
       {
@@ -33,7 +43,6 @@
             go
             gopls
             go-tools
-            tailwindcss
             watchexec
           ];
         };
