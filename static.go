@@ -22,7 +22,7 @@ func buildTailwind(outDir string) error {
 	out := filepath.Join(outDir, "static", "styles.css")
 
 	// Assumes the user has `tailwindcss` available
-	cmd := exec.Command("tailwindcss", "--input", in, "--output", out, "--minify", "--config", "tailwind.config.js")
+	cmd := exec.Command("tailwindcss", "--input", in, "--output", out, "--minify", "--content", "./**/*.html")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
