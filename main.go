@@ -1,18 +1,13 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
-
-//go:embed site/*.html
-var pageFS embed.FS
 
 var tagPostMap = make(map[string][]Post) // tag -> posts
 
@@ -29,7 +24,7 @@ func main() {
 		log.Fatalf("Failed to initialize config: %v", err)
 	}
 
-	// load templates
+	// Load templates
 	tmpls, err := loadPages(cfg.templateDir, cfg.pageDir)
 	if err != nil {
 		log.Fatalf("failed to parse templates: %v", err)
@@ -45,7 +40,7 @@ func main() {
 		log.Fatalf("Failed to copy static files: %v", err)
 	}
 
-	// process markdown
+	// Process markdown
 	filepath.Walk(cfg.postDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
 			if err := processPost(path, fmt.Sprintf("%s/posts", cfg.outDir), tmpls); err != nil {
@@ -55,16 +50,18 @@ func main() {
 		return nil
 	})
 
-	// process pages
-	fs.WalkDir(pageFS, cfg.pageDir, func(path string, d fs.DirEntry, err error) error {
+	// Process pages
+	filepath.Walk(cfg.pageDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
-			processHTMLPage(path, cfg.outDir, tmpls)
+			if err := processPage(path, cfg.outDir, tmpls); err != nil {
+				log.Fatalf("Failed to process page %s: %v", path, err)
+			}
 		}
 		return nil
 	})
 }
 
-func processHTMLPage(path, outDir string, pages *template.Template) {
+func processPage(path, outDir string, pages *template.Template) error {
 	// get filename
 	filename := filepath.Base(path)
 
@@ -93,4 +90,6 @@ func processHTMLPage(path, outDir string, pages *template.Template) {
 	if err != nil {
 		log.Fatalf("failed to execute template for %s: %v", path, err)
 	}
+
+	return nil
 }
