@@ -49,7 +49,7 @@ func main() {
 	}
 
 	// process markdown
-	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
+	filepath.Walk(cfg.postDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
 			if err := processPost(path, fmt.Sprintf("%s/posts", cfg.outDir), tmpls); err != nil {
 				log.Fatalf("Failed to process markdown file %s: %v", path, err)
@@ -59,7 +59,7 @@ func main() {
 	})
 
 	// process pages
-	fs.WalkDir(pageFS, "site", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(pageFS, cfg.pageDir, func(path string, d fs.DirEntry, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			processHTMLPage(path, cfg.outDir, tmpls)
 		}

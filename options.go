@@ -25,7 +25,7 @@ func parseFlags() (*Config, error) {
 
 	flag.StringVar(&cfg.outDir, "outDir", "out", "Path to generate site in")
 	flag.StringVar(&cfg.pageDir, "pageDir", "site", "Path to pages folder")
-	flag.StringVar(&cfg.postDir, "postDir", "site/posts", "Path to posts folder")
+	flag.StringVar(&cfg.postDir, "postDir", "posts", "Path to posts folder")
 	flag.StringVar(&cfg.staticDir, "staticDir", "static", "Path to static folder")
 	flag.StringVar(&cfg.templateDir, "templateDir", "templates", "Path to templates folder")
 
