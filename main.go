@@ -11,9 +11,6 @@ import (
 	"strings"
 )
 
-//go:embed templates/*.html site/*.html
-var tmplFS embed.FS
-
 //go:embed site/*.html
 var pageFS embed.FS
 
@@ -33,7 +30,7 @@ func main() {
 	}
 
 	// load templates
-	tmpls, err := template.ParseFS(tmplFS, "templates/*.html", "site/*.html")
+	tmpls, err := loadPages(cfg.templateDir, cfg.pageDir)
 	if err != nil {
 		log.Fatalf("failed to parse templates: %v", err)
 	}
