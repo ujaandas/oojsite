@@ -24,12 +24,21 @@ For a given markdown file, we need to handle 4 main things:
 	4. Write the output
 */
 
+/*
+The mandatory YAML fields in each post's frontmatter.
+
+Naturally, this is accessible in an HTML page through `Post.Frontmatter`.
+*/
 type Frontmatter struct {
 	Title    string   `yaml:"title"`
 	Template string   `yaml:"template"`
 	Tags     []string `yaml:"tags,omitempty"`
 }
 
+/*
+The actual Post object, wherein each field is accessible
+from the HTML pages themselves.
+*/
 type Post struct {
 	Frontmatter Frontmatter
 	Filepath    string
@@ -37,7 +46,7 @@ type Post struct {
 	Raw         []byte
 }
 
-func processPost(path, outDir string, tmpls *template.Template) error {
+func processPost(path, postDir string, tmpls *template.Template) error {
 	// Read file
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -64,11 +73,7 @@ func processPost(path, outDir string, tmpls *template.Template) error {
 	}
 
 	// Write outputted file
-	if err := writePostFile(path, outDir, tmpl, post, buf); err != nil {
-		return err
-	}
-
-	return nil
+	return writePostFile(path, postDir, tmpl, post, buf)
 }
 
 func sortedPosts(posts []Post) []Post {
@@ -143,23 +148,20 @@ func extractText(raw []byte) string {
 // Write outputted HTML file
 func writePostFile(src, dst string, tmpl *template.Template, post *Post, contentBuf bytes.Buffer) error {
 	// Create output file + parent dirs
-	trimmedPath := strings.TrimPrefix(src, "site/")
-	pathWoSite := filepath.ToSlash(trimmedPath)
-
-	dirOutPath := filepath.Join(dst, filepath.Dir(pathWoSite))
-	if err := os.MkdirAll(dirOutPath, os.ModePerm); err != nil {
-		return err
+	outPath, err := outFilePath(src, dst)
+	if err != nil {
+		return fmt.Errorf("preparing output path: %w", err)
 	}
 
-	outPath := filepath.Join(dst, strings.TrimSuffix(pathWoSite, ".md")+".html")
+	// Create the actual file
 	outFile, err := os.Create(outPath)
 	if err != nil {
 		return err
 	}
 	defer outFile.Close()
 
-	// Write output file
-	if err := tmpl.Execute(outFile, BlogTemplate{
+	// Write to the output file
+	if err := tmpl.Execute(outFile, Template{
 		Title:   post.Frontmatter.Title,
 		Content: template.HTML(contentBuf.String()),
 	}); err != nil {
@@ -172,4 +174,17 @@ func writePostFile(src, dst string, tmpl *template.Template, post *Post, content
 	}
 
 	return nil
+}
+
+// Get and ensure output path exists.
+func outFilePath(src, dst string) (string, error) {
+	// Get output path
+	filename := filepath.Base(src)
+	outPath := filepath.Join(dst, strings.TrimSuffix(filename, ".md")+".html")
+
+	// Ensure parent directory exists
+	if err := os.MkdirAll(filepath.Dir(outPath), os.ModePerm); err != nil {
+		return "", err
+	}
+	return outPath, nil
 }

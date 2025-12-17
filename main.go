@@ -19,10 +19,9 @@ var pageFS embed.FS
 
 var tagPostMap = make(map[string][]Post) // tag -> posts
 
-type BlogTemplate struct {
+type Template struct {
 	Title   string
 	Content template.HTML
-	Misc    map[string]any
 }
 
 type PageTemplate map[string][]Post
@@ -52,7 +51,9 @@ func main() {
 	// process markdown
 	filepath.Walk("site", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
-			processPost(path, cfg.outDir, tmpls)
+			if err := processPost(path, fmt.Sprintf("%s/posts", cfg.outDir), tmpls); err != nil {
+				log.Fatalf("Failed to process markdown file %s: %v", path, err)
+			}
 		}
 		return nil
 	})
