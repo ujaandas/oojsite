@@ -24,20 +24,6 @@ func main() {
 	}
 	log.Println("Templates loaded!")
 
-	// Build and compile TailwindCSS
-	log.Println("Building TailwindCSS...")
-	if err := buildTailwind(cfg.outDir); err != nil {
-		log.Fatalf("Failed to build TailwindCSS: %v", err)
-	}
-	log.Println("TailwindCSS built!")
-
-	// Copy over static files
-	log.Println("Copying static files...")
-	if err := copyStaticContents("static", fmt.Sprintf("%s/static", cfg.outDir)); err != nil {
-		log.Fatalf("Failed to copy static files: %v", err)
-	}
-	log.Println("Copied static files!")
-
 	// Process markdown
 	filepath.Walk(cfg.postDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
@@ -61,4 +47,18 @@ func main() {
 		}
 		return nil
 	})
+
+	// Build and compile TailwindCSS
+	log.Println("Building TailwindCSS...")
+	if err := buildTailwind(cfg.outDir); err != nil {
+		log.Fatalf("Failed to build TailwindCSS: %v", err)
+	}
+	log.Println("TailwindCSS built!")
+
+	// Copy over static files
+	log.Println("Copying static files...")
+	if err := copyStaticContents("static", fmt.Sprintf("%s/static", cfg.outDir)); err != nil {
+		log.Fatalf("Failed to copy static files: %v", err)
+	}
+	log.Println("Copied static files!")
 }
