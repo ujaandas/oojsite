@@ -3,10 +3,10 @@
 A tiny and ergonomic static blog generator written in Go.  
 Markdown in, HTML out - no fuss.
 
-## 👾 Example
+## Example
 Check out my own [blog](https://github.com/ujaandas/ujaandas.github.io/) for an example. You can also use the `flake.nix` there as a starter template.
 
-## 🗂️ Project Structure
+## Project Structure
 
 - `static/ ` - Static assets (scripts, CSS, UI libs, etc.)
 - `templates/` - HTML templates for blog posts
@@ -16,9 +16,9 @@ Check out my own [blog](https://github.com/ujaandas/ujaandas.github.io/) for an 
 
 > All of these folder names can be changed! Check `options.go`.
 
-## 📦 How it Works
+## How it Works
 
-I built `oojsite` to be as simple as possible. No DSL or weird templating syntax (ahem, ahem, _Jekyll_).
+I built `oojsite` to be as simple as possible. No DSL or weird templating syntax (ahem, ahem, _Jekyll_), it's just Go's text/template.
 
 - You can insert any post into any page template by using your blog post "tags" frontmatter (i.e; tags: ["posts"] -> {{ .posts }})
 - You can use TailwindCSS or just regular CSS rules (for instance, in `styles.css`)
@@ -29,7 +29,7 @@ I built `oojsite` to be as simple as possible. No DSL or weird templating syntax
 
 Once you've written whatever content you wanted, just hit `nix run` - it will take care of the rest and give you your built website in `out/`.
 
-## 📋 TODO
+## TODO
 
 - Better ergonomics
 - Global variables and template state
