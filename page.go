@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 /*
@@ -29,33 +29,57 @@ type PageTemplate map[string][]Post
 func loadPages(tmplDir, siteDir string) (*template.Template, error) {
 	tmpls := template.New("")
 
-	// Load post templates
-	tmpls, err := tmpls.ParseGlob(fmt.Sprintf("%s/*.html", tmplDir))
-	if err != nil {
-		return nil, err
-	}
+	// load post templates
+	filepath.Walk(tmplDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".html") {
+			return nil
+		}
 
-	// Load actual page templates
-	tmpls, err = tmpls.ParseGlob(fmt.Sprintf("%s/*.html", siteDir))
-	if err != nil {
-		return nil, err
-	}
+		rel, err := filepath.Rel(tmplDir, path)
+		if err != nil {
+			return err
+		}
+
+		content, _ := os.ReadFile(path)
+		tmpls.New(rel).Parse(string(content))
+		return err
+	})
+
+	// load actual page templates
+	filepath.Walk(siteDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".html") {
+			return nil
+		}
+
+		rel, err := filepath.Rel(siteDir, path)
+		if err != nil {
+			return err
+		}
+
+		content, _ := os.ReadFile(path)
+		tmpls.New(rel).Parse(string(content))
+		return err
+	})
 
 	return tmpls, nil
 }
 
 func processPage(path, outDir string, pages *template.Template) error {
-	// get filename
-	filename := filepath.Base(path)
+	// get expected output path
+	outPath := filepath.Join(outDir, path)
+
+	// ensure path exists
+	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+		return err
+	}
 
 	// apply template
-	tmpl := pages.Lookup(filename)
+	tmpl := pages.Lookup(path)
 	if tmpl == nil {
-		log.Fatalf("template %s not found for %s", filename, path)
+		log.Fatalf("template %s not found for %s", path, path)
 	}
 
 	// create output file
-	outPath := filepath.Join(outDir, filename)
 	outFile, err := os.Create(outPath)
 	if err != nil {
 		log.Fatalf("failed to create output file %s: %v", outPath, err)

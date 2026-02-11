@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,10 +29,16 @@ func main() {
 	filepath.Walk(cfg.postDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".md") {
 			log.Printf("Processing post at %s...\n", path)
-			if err := processPost(path, fmt.Sprintf("%s/posts", cfg.outDir), tmpls); err != nil {
-				log.Fatalf("Failed to process markdown file %s: %v", path, err)
+
+			rel, err := filepath.Rel(cfg.postDir, path)
+			if err != nil {
+				return err
 			}
-			log.Println("Post processed!")
+
+			// Pass both
+			if err := processPost(rel, cfg.postDir, cfg.outDir, tmpls); err != nil {
+				log.Fatalf("Failed to process post %s: %v", path, err)
+			}
 		}
 		return nil
 	})
@@ -40,9 +47,16 @@ func main() {
 	filepath.Walk(cfg.pageDir, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			log.Printf("Processing page at %s...\n", path)
-			if err := processPage(path, cfg.outDir, tmpls); err != nil {
+
+			rel, err := filepath.Rel(cfg.pageDir, path)
+			if err != nil {
+				return err
+			}
+
+			if err := processPage(rel, cfg.outDir, tmpls); err != nil {
 				log.Fatalf("Failed to process page %s: %v", path, err)
 			}
+
 			log.Println("Page processed!")
 		}
 		return nil
@@ -61,4 +75,10 @@ func main() {
 		log.Fatalf("Failed to copy static files: %v", err)
 	}
 	log.Println("Copied static files!")
+
+	// Serve
+	log.Println("Server started on localhost:8000!")
+	if err := http.ListenAndServe(":8000", http.FileServer(http.Dir(cfg.outDir))); err != nil {
+		log.Fatalf("Server has crashed: %v", err)
+	}
 }

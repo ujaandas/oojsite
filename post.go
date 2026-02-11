@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -46,9 +47,11 @@ type Post struct {
 	Raw         []byte
 }
 
-func processPost(path, postDir string, tmpls *template.Template) error {
-	// Read file
-	content, err := os.ReadFile(path)
+func processPost(path, postDir, outDir string, tmpls *template.Template) error {
+	absPath := filepath.Join(postDir, path)
+
+	// Read content
+	content, err := os.ReadFile(absPath)
 	if err != nil {
 		return err
 	}
@@ -73,7 +76,7 @@ func processPost(path, postDir string, tmpls *template.Template) error {
 	}
 
 	// Write outputted file
-	return writePostFile(path, postDir, tmpl, post, buf)
+	return writePostFile(path, fmt.Sprintf("%s/posts", outDir), tmpl, post, buf)
 }
 
 func sortedPosts(posts []Post) []Post {
@@ -104,7 +107,9 @@ func extractFrontmatter(path string, content []byte) (*Post, error) {
 	}
 
 	// Get relative filepath
-	relFp := strings.TrimPrefix(strings.TrimSuffix(path, filepath.Ext(path))+".html", "site/")
+	relFp := "/posts/" + strings.TrimSuffix(path, filepath.Ext(path)) + ".html"
+
+	log.Printf("given %s, rel is %s", path, relFp)
 
 	return &Post{
 		Frontmatter: frontmatter,
@@ -148,9 +153,13 @@ func extractText(raw []byte) string {
 // Write outputted HTML file
 func writePostFile(src, dst string, tmpl *template.Template, post *Post, contentBuf bytes.Buffer) error {
 	// Create output file + parent dirs
-	outPath, err := outFilePath(src, dst)
-	if err != nil {
-		return fmt.Errorf("preparing output path: %w", err)
+	outPath := filepath.Join(dst,
+		strings.TrimSuffix(src, filepath.Ext(src))+".html",
+	)
+
+	// Ensure parent directory exists
+	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+		return err
 	}
 
 	// Create the actual file
@@ -174,17 +183,4 @@ func writePostFile(src, dst string, tmpl *template.Template, post *Post, content
 	}
 
 	return nil
-}
-
-// Get and ensure output path exists.
-func outFilePath(src, dst string) (string, error) {
-	// Get output path
-	filename := filepath.Base(src)
-	outPath := filepath.Join(dst, strings.TrimSuffix(filename, ".md")+".html")
-
-	// Ensure parent directory exists
-	if err := os.MkdirAll(filepath.Dir(outPath), os.ModePerm); err != nil {
-		return "", err
-	}
-	return outPath, nil
 }
