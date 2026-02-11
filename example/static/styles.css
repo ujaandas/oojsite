@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .article {
+    @apply text-lg max-w-none leading-relaxed text-gray-800;
+  }
+
+  .article > h1 {
+    @apply text-3xl font-bold mt-10 mb-6 leading-tight;
+  }
+
+  .article > h2 {
+    @apply text-2xl font-semibold mt-8 mb-4 leading-snug;
+  }
+
+  .article > h3 {
+    @apply text-xl font-semibold mt-6 mb-3 leading-snug;
+  }
+
+  .article > h4 {
+    @apply text-lg font-semibold mt-5 mb-2;
+  }
+
+  .article > p {
+    @apply my-4 text-gray-700;
+  }
+
+  .article a {
+    @apply text-blue-600 underline decoration-blue-400 decoration-2 underline-offset-2;
+  }
+
+  .article a:hover {
+    @apply text-blue-700 decoration-blue-600;
+  }
+
+  .article > ul {
+    @apply list-disc pl-6 my-4;
+  }
+
+  .article > ol {
+    @apply list-decimal pl-6 my-4;
+  }
+
+  .article li {
+    @apply my-1;
+  }
+
+  .article > blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-6;
+  }
+
+  .article code {
+    @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800;
+  }
+
+  .article pre {
+    @apply bg-gray-100 p-4 rounded my-4 text-sm leading-relaxed overflow-x-auto whitespace-pre;
+  }
+
+  .article pre code {
+    @apply bg-transparent p-0 rounded-none text-inherit;
+  }
+
+  .article > hr {
+    @apply my-8 border-gray-300;
+  }
+
+  .article img {
+    @apply my-6 rounded-lg;
+  }
+
+  .article table {
+    @apply w-full border-collapse my-6 text-sm;
+  }
+
+  .article th {
+    @apply border-b font-semibold text-left p-2 bg-gray-50;
+  }
+
+  .article td {
+    @apply border-b p-2;
+  }
+
+  .article strong {
+    @apply font-semibold text-gray-900;
+  }
+
+  .article em {
+    @apply italic text-gray-700;
+  }
+
+  .article figcaption {
+    @apply text-center text-sm text-gray-500 mt-2;
+  }
+}
