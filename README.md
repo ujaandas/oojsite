@@ -4,6 +4,7 @@ A tiny and ergonomic static blog generator written in Go.
 Markdown in, HTML out - no fuss.
 
 ## Example
+
 Check out my own [blog](https://github.com/ujaandas/ujaandas.github.io/) for an example. You can also use the `flake.nix` there as a starter template.
 
 ## Project Structure
@@ -28,6 +29,12 @@ I built `oojsite` to be as simple as possible. No DSL or weird templating syntax
 - Blog posts are recognized as all `*.md` files, and pages are recognized as all `*.html` files
 
 Once you've written whatever content you wanted, just hit `nix run` - it will take care of the rest and give you your built website in `out/`.
+
+## Try the Example!
+
+```sh
+nix run .#oojsite --  --pageDir="example/site" --postDir="example/posts" --staticDir="example/static" --templateDir="example/templates"
+```
 
 ## TODO
 
