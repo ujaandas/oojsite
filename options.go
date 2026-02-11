@@ -18,6 +18,7 @@ type Config struct {
 	postDir     string
 	staticDir   string
 	templateDir string
+	dev         bool
 }
 
 func parseOptions() (*Config, error) {
@@ -28,6 +29,7 @@ func parseOptions() (*Config, error) {
 	flag.StringVar(&cfg.postDir, "postDir", "posts", "Path to posts folder")
 	flag.StringVar(&cfg.staticDir, "staticDir", "static", "Path to static folder")
 	flag.StringVar(&cfg.templateDir, "templateDir", "templates", "Path to templates folder")
+	flag.BoolVar(&cfg.dev, "dev", false, "Start development server")
 
 	flag.Parse()
 	// Validate all directories in one helper

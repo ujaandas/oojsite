@@ -77,6 +77,10 @@ func main() {
 	log.Println("Copied static files!")
 
 	// Serve
+	if !cfg.dev {
+		return
+	}
+
 	log.Println("Server started on localhost:8000!")
 	if err := http.ListenAndServe(":8000", http.FileServer(http.Dir(cfg.outDir))); err != nil {
 		log.Fatalf("Server has crashed: %v", err)
