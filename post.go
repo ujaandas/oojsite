@@ -107,7 +107,7 @@ func extractFrontmatter(path string, content []byte) (*Post, error) {
 	}
 
 	// Get relative filepath
-	relFp := "/posts/" + strings.TrimSuffix(path, filepath.Ext(path)) + ".html"
+	relFp := "/posts/" + strings.TrimSuffix(path, filepath.Ext(path)) + "/"
 
 	log.Printf("given %s, rel is %s", path, relFp)
 
@@ -153,8 +153,10 @@ func extractText(raw []byte) string {
 // Write outputted HTML file
 func writePostFile(src, dst string, tmpl *template.Template, post *Post, contentBuf bytes.Buffer) error {
 	// Create output file + parent dirs
-	outPath := filepath.Join(dst,
-		strings.TrimSuffix(src, filepath.Ext(src))+".html",
+	outPath := filepath.Join(
+		dst,
+		strings.TrimSuffix(src, filepath.Ext(src)),
+		"index.html",
 	)
 
 	// Ensure parent directory exists
