@@ -50,14 +50,14 @@ func main() {
 
 	// Build and compile TailwindCSS
 	log.Println("Building TailwindCSS...")
-	if err := buildTailwind(cfg.outDir); err != nil {
+	if err := buildTailwind(cfg.outDir, cfg.staticDir); err != nil {
 		log.Fatalf("Failed to build TailwindCSS: %v", err)
 	}
 	log.Println("TailwindCSS built!")
 
 	// Copy over static files
 	log.Println("Copying static files...")
-	if err := copyStaticContents("static", fmt.Sprintf("%s/static", cfg.outDir)); err != nil {
+	if err := copyStaticContents(cfg.staticDir, fmt.Sprintf("%s/static", cfg.outDir)); err != nil {
 		log.Fatalf("Failed to copy static files: %v", err)
 	}
 	log.Println("Copied static files!")

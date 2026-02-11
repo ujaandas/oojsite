@@ -16,9 +16,8 @@ and copying over everything else.
 */
 
 // Use `os/exec` to build TailwindCSS.
-func buildTailwind(outDir string) error {
-	// TODO: Make these options/user-changeable later
-	in := filepath.Join("static", "styles.css")
+func buildTailwind(outDir, staticDir string) error {
+	in := filepath.Join(staticDir, "styles.css")
 	out := filepath.Join(outDir, "static", "styles.css")
 
 	// Assumes the user has `tailwindcss` available

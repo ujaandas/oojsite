@@ -51,6 +51,9 @@ func validateDirs(cfg *Config) error {
 		}
 	}
 
+	// Clean outDir
+	os.RemoveAll(cfg.outDir)
+
 	return nil
 }
 
