@@ -2,6 +2,7 @@
 title: "Building a Static Site Generator in Go"
 template: "post"
 tags: ["projects"]
+date: "October 13, 2025"
 ---
 
 I feel like my portfolio sites keep getting dumber and dumber, and maybe that's a good thing. It started with Next.js, which, for obvious reasons (for a static site),

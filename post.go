@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/kaleocheng/goldmark"
 	"github.com/kaleocheng/goldmark/ast"
@@ -34,6 +35,7 @@ type Frontmatter struct {
 	Title    string   `yaml:"title"`
 	Template string   `yaml:"template"`
 	Tags     []string `yaml:"tags,omitempty"`
+	Date     string   `yaml:"date"`
 }
 
 /*
@@ -82,9 +84,19 @@ func processPost(path, postDir, outDir string, tmpls *template.Template) error {
 func sortedPosts(posts []Post) []Post {
 	sorted := make([]Post, len(posts))
 	copy(sorted, posts)
+
 	sort.SliceStable(sorted, func(i, j int) bool {
-		return sorted[i].Frontmatter.Title < sorted[j].Frontmatter.Title // sort by title
+		di, err1 := time.Parse("January 2, 2006", sorted[i].Frontmatter.Date)
+		dj, err2 := time.Parse("January 2, 2006", sorted[j].Frontmatter.Date)
+
+		// Fall back to string comparison to keep ordering deterministic
+		if err1 != nil || err2 != nil {
+			return sorted[i].Frontmatter.Date < sorted[j].Frontmatter.Date
+		}
+
+		return di.After(dj)
 	})
+
 	return sorted
 }
 

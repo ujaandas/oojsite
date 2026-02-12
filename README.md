@@ -33,7 +33,7 @@ Once you've written whatever content you wanted, just hit `nix run` - it will ta
 ## Try the Example!
 
 ```sh
-nix run .#oojsite --  --pageDir="example/site" --postDir="example/posts" --staticDir="example/static" --templateDir="example/templates"
+nix run .#oojsite --  --pageDir="example/site" --postDir="example/posts" --staticDir="example/static" --templateDir="example/templates" --dev
 ```
 
 ## TODO
