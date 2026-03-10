@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -120,8 +119,6 @@ func extractFrontmatter(path string, content []byte) (*Post, error) {
 
 	// Get relative filepath
 	relFp := "/posts/" + strings.TrimSuffix(path, filepath.Ext(path)) + "/"
-
-	log.Printf("given %s, rel is %s", path, relFp)
 
 	return &Post{
 		Frontmatter: frontmatter,
