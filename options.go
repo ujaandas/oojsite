@@ -13,12 +13,13 @@ file of sorts for better portability.
 */
 
 type Config struct {
-	outDir      string
-	pageDir     string
-	postDir     string
-	staticDir   string
-	templateDir string
-	dev         bool
+	outDir       string
+	pageDir      string
+	postDir      string
+	staticDir    string
+	templateDir  string
+	componentDir string
+	dev          bool
 }
 
 func parseOptions() (*Config, error) {
@@ -29,6 +30,7 @@ func parseOptions() (*Config, error) {
 	flag.StringVar(&cfg.postDir, "postDir", "posts", "Path to posts folder")
 	flag.StringVar(&cfg.staticDir, "staticDir", "static", "Path to static folder")
 	flag.StringVar(&cfg.templateDir, "templateDir", "templates", "Path to templates folder")
+	flag.StringVar(&cfg.componentDir, "componentDir", "components", "Path to components folder")
 	flag.BoolVar(&cfg.dev, "dev", false, "Start development server")
 
 	flag.Parse()
@@ -44,7 +46,7 @@ func parseOptions() (*Config, error) {
 func validateDirs(cfg *Config) error {
 	// All required dirs
 	// TODO: Can I use reflection here?
-	dirs := []string{cfg.outDir, cfg.pageDir, cfg.postDir, cfg.staticDir, cfg.templateDir}
+	dirs := []string{cfg.outDir, cfg.pageDir, cfg.postDir, cfg.staticDir, cfg.templateDir, cfg.componentDir}
 
 	// Ensure they all exist, create if not.
 	for _, path := range dirs {
