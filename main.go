@@ -19,7 +19,7 @@ func main() {
 
 	// Load templates
 	log.Println("Loading templates...")
-	tmpls, err := loadPages(cfg.templateDir, cfg.pageDir)
+	tmpls, err := loadTemplates(cfg.templateDir, cfg.componentDir, cfg.pageDir)
 	if err != nil {
 		log.Fatalf("failed to parse templates: %v", err)
 	}

@@ -37,7 +37,7 @@
     <div class="md:mt-10 flex-grow">
       <h1 class="text-3xl font-bold mb-6">What I've Been Working On.</h1>
 
-      {{ range .projects }}
+      {{ range .Tags.Projects }}
         <article class="mb-6">
           <h2 class="text-2xl font-semibold text-blue-700 hover:underline">
             <a href={{ .Filepath }}>{{ .Frontmatter.Title }}</a>

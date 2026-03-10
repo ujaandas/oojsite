@@ -23,10 +23,12 @@ type Template struct {
 	Content template.HTML
 }
 
-type PageTemplate map[string][]Post
+type PageData struct {
+	Tags map[string][]Post
+}
 
 // Load both page templates (ie; for posts) and actual pages (ie; index.html).
-func loadPages(tmplDir, siteDir string) (*template.Template, error) {
+func loadTemplates(tmplDir, componentDir, siteDir string) (*template.Template, error) {
 	tmpls := template.New("")
 
 	// load post templates
@@ -52,6 +54,22 @@ func loadPages(tmplDir, siteDir string) (*template.Template, error) {
 		}
 
 		rel, err := filepath.Rel(siteDir, path)
+		if err != nil {
+			return err
+		}
+
+		content, _ := os.ReadFile(path)
+		tmpls.New(rel).Parse(string(content))
+		return err
+	})
+
+	// load component templates
+	filepath.Walk(componentDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".html") {
+			return nil
+		}
+
+		rel, err := filepath.Rel(componentDir, path)
 		if err != nil {
 			return err
 		}
@@ -87,9 +105,13 @@ func processPage(path, outDir string, pages *template.Template) error {
 	defer outFile.Close()
 
 	// fill in tags
-	data := make(PageTemplate)
+	data := PageData{
+		Tags: make(map[string][]Post),
+	}
+
 	for tag, posts := range tagPostMap {
-		data[tag] = sortedPosts(posts)
+		capitalTag := strings.ToTitle(tag[:1]) + tag[1:]
+		data.Tags[capitalTag] = sortedPosts(posts)
 	}
 
 	// write output file
