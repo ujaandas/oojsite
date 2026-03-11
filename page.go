@@ -75,6 +75,7 @@ func loadTemplates(tmplDir, componentDir, siteDir string) (*template.Template, e
 		}
 
 		content, _ := os.ReadFile(path)
+		// log.Printf("Loaded new component template named: %s", rel)
 		tmpls.New(rel).Parse(string(content))
 		return err
 	})
@@ -82,7 +83,7 @@ func loadTemplates(tmplDir, componentDir, siteDir string) (*template.Template, e
 	return tmpls, nil
 }
 
-func processPage(path, outDir string, pages *template.Template) error {
+func processPage(path, outDir string, tmpls *template.Template) error {
 	// get expected output path
 	outPath := filepath.Join(outDir, path)
 
@@ -92,7 +93,7 @@ func processPage(path, outDir string, pages *template.Template) error {
 	}
 
 	// apply template
-	tmpl := pages.Lookup(path)
+	tmpl := tmpls.Lookup(path)
 	if tmpl == nil {
 		log.Fatalf("template %s not found for %s", path, path)
 	}
