@@ -2,37 +2,13 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
+  {{ template "header.html" . }}
   <title>Blog | Ujaan Das</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
-  <link href="/static/styles.css" rel="stylesheet" />
-  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 </head>
 
 <body class="flex flex-col items-center justify-center align-middle min-h-screen bg-white text-gray-800 font-serif">
   <main class="flex flex-col md:flex-row md:items-start justify-between max-w-3xl mx-auto flex-grow p-6 gap-6">
-    <div class="flex-shrink-0 hidden md:flex md:flex-col md:items-start md:mt-10 md:mr-10">
-    <img src="/static/pfp.webp" alt="Profile picture" class="w-40 h-auto mb-4" />
-
-    <nav class="hidden md:flex md:flex-col md:gap-2 text-sm">
-      <a href="https://github.com/yourusername" class="flex items-center gap-2 hover:underline">
-        <i class="fab fa-github"></i> <p class="text-base">GitHub</p>
-      </a>
-      <a href="https://linkedin.com/in/yourusername" class="flex items-center gap-2 hover:underline">
-        <i class="fab fa-linkedin"></i> <p class="text-base">LinkedIn</p>
-      </a>
-      <a href="https://instagram.com/yourusername" class="flex items-center gap-2 hover:underline">
-        <i class="fab fa-instagram"></i> <p class="text-base">Instagram</p>
-      </a>
-      <a href="static/resume.pdf" class="flex items-center gap-2 hover:underline">
-        <i class="fas fa-file-alt"></i> <p class="text-base">Resume</p>
-      </a>
-      <a href="mailto:you@example.com" class="flex items-center gap-2 hover:underline">
-        <i class="fas fa-envelope"></i> <p class="text-base">Email</p>
-      </a>
-    </nav>
-  </div>
+    {{ template "sidebar.html" . }}
 
     <div class="md:mt-10 flex-grow">
       <h1 class="text-3xl font-bold mb-6">What I've Been Working On.</h1>
@@ -49,10 +25,7 @@
     </div>
   </main>
 
-  <footer class="flex flex-col justify-center text-center text-base text-gray-500 mt-12 mb-4">
-    <!-- <a href="url" class="mb-1">@2492c87</a> -->
-    <p>© 2025 Ujaan Das</p>
-  </footer>
+  {{ template "footer.html" . }}
 </body>
 
 </html>

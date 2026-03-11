@@ -26,6 +26,7 @@ I built `oojsite` to be as simple as possible. No DSL or weird templating syntax
 - Your public/static content (ie; scripts, CSS, assets, etc...) goes in `static/`
 - Currently, you need a dummy `styles.css`, if you don't want to use Tailwind, just omit the headers
 - Any templates you want for your blog posts, write them in `templates/`, and use the "template" frontmatter to match it
+- Any components or chunks of HTML you want to reuse, write them in `components/` and call them like `{{ template "header.html" . }}`
 - Blog posts are recognized as all `*.md` files, and pages are recognized as all `*.html` files
 
 Once you've written whatever content you wanted, just hit `nix run` - it will take care of the rest and give you your built website in `out/`.
