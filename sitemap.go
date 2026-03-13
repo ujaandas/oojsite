@@ -55,7 +55,7 @@ func addFilesToSitemap(baseUrl, outDir string, sitemap *Sitemap) error {
 }
 
 func generateSitemapFile(outDir string, sitemap *Sitemap) error {
-	file, err := os.Create(fmt.Sprintf("%s/sitemap.xml", outDir))
+	file, err := os.Create(fmt.Sprintf("%s/static/sitemap.xml", outDir))
 	if err != nil {
 		return err
 	}
