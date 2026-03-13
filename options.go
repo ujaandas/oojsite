@@ -19,6 +19,7 @@ type Config struct {
 	staticDir    string
 	templateDir  string
 	componentDir string
+	baseUrl      string
 	dev          bool
 }
 
@@ -31,6 +32,7 @@ func parseOptions() (*Config, error) {
 	flag.StringVar(&cfg.staticDir, "staticDir", "static", "Path to static folder")
 	flag.StringVar(&cfg.templateDir, "templateDir", "templates", "Path to templates folder")
 	flag.StringVar(&cfg.componentDir, "componentDir", "components", "Path to components folder")
+	flag.StringVar(&cfg.baseUrl, "baseUrl", "baseUrl", "Base site URL")
 	flag.BoolVar(&cfg.dev, "dev", false, "Start development server")
 
 	flag.Parse()

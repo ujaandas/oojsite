@@ -76,6 +76,12 @@ func main() {
 	}
 	log.Println("Copied static files!")
 
+	log.Println("Building sitemap...")
+	if err := buildSitemap(cfg.baseUrl, cfg.outDir); err != nil {
+		log.Fatalf("Failed to build sitemap: %v", err)
+	}
+	log.Println("Built sitemap!")
+
 	// Serve
 	if !cfg.dev {
 		return
