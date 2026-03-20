@@ -3,6 +3,7 @@ title: "Streamlining my Resume with Nix and LaTex"
 template: "post"
 tags: ["projects"]
 date: "December 8, 2025"
+thumbnail: "path/to/img"
 ---
 
 One of the biggest problems I had with my resume previously was fiddling between different layouts for different positions (i.e; full-stack oriented resume, backend oriented, research oriented, etc...). So, to solve this, I spent the past days transforming my Nix-backed LaTeX resume builder into a fully modular resume generator. Now I can write each content 'block' exactly once (i.e; a single source of truth) and assemble it into any layout I want with Nix.

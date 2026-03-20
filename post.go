@@ -31,10 +31,11 @@ The mandatory YAML fields in each post's frontmatter.
 Naturally, this is accessible in an HTML page through `Post.Frontmatter`.
 */
 type Frontmatter struct {
-	Title    string   `yaml:"title"`
-	Template string   `yaml:"template"`
-	Tags     []string `yaml:"tags,omitempty"`
-	Date     string   `yaml:"date"`
+	Title     string   `yaml:"title"`
+	Template  string   `yaml:"template"`
+	Tags      []string `yaml:"tags,omitempty"`
+	Date      string   `yaml:"date"`
+	Thumbnail string   `yaml:"thumbnail"`
 }
 
 /*
