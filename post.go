@@ -134,6 +134,14 @@ func makeSnippet(raw []byte, wordCount int) string {
 	text := extractText(raw)
 	words := strings.Fields(text)
 
+	if len(words) == 0 {
+		return ""
+	}
+
+	if len(words) <= wordCount {
+		return strings.Join(words, " ")
+	}
+
 	return strings.Join(words[:wordCount], " ") + "..."
 }
 
