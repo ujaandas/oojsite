@@ -191,8 +191,8 @@ func writePostFile(src, dst string, tmpl *template.Template, post *Post, content
 
 	// Write to the output file
 	if err := tmpl.Execute(outFile, Template{
-		Title:   post.Frontmatter.Title,
-		Content: template.HTML(contentBuf.String()),
+		Frontmatter: post.Frontmatter,
+		Content:     template.HTML(contentBuf.String()),
 	}); err != nil {
 		return err
 	}

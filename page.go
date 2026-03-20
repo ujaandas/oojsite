@@ -19,8 +19,8 @@ access a wide breadth of global state, things like tags, page titles, options, e
 var tagPostMap = make(map[string][]Post) // tag -> posts
 
 type Template struct {
-	Title   string
-	Content template.HTML
+	Content     template.HTML
+	Frontmatter Frontmatter
 }
 
 type PageData struct {
