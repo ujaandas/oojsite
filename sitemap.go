@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -24,9 +25,28 @@ type Sitemap struct {
 }
 
 func generateURL(baseUrl, outDir, filePath string) string {
-	// try to match url structure
-	relativePath := filePath[len(outDir):]
-	return baseUrl + relativePath
+	rel, err := filepath.Rel(outDir, filePath)
+	if err != nil {
+		return baseUrl
+	}
+
+	rel = filepath.ToSlash(rel)
+
+	// strip index.html → directory
+	if before, ok := strings.CutSuffix(rel, "index.html"); ok {
+		rel = before
+	} else if before0, ok0 := strings.CutSuffix(rel, ".html"); ok0 {
+		// strip .html → clean URL
+		rel = before0
+		rel += "/"
+	}
+
+	// ensure leading slash
+	if !strings.HasPrefix(rel, "/") {
+		rel = "/" + rel
+	}
+
+	return strings.TrimRight(baseUrl, "/") + rel
 }
 
 func addFilesToSitemap(baseUrl, outDir string, sitemap *Sitemap) error {
