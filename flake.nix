@@ -44,6 +44,7 @@
             gopls
             go-tools
             watchexec
+            oojsite
           ];
         };
       }
