@@ -13,6 +13,12 @@ func BuildTailwind(outDir, staticDir string) error {
 	in := filepath.Join(staticDir, "styles.css")
 	out := filepath.Join(outDir, "static", "styles.css")
 
+	if _, err := os.Stat(in); os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+
 	cmd := exec.Command("tailwindcss", "--input", in, "--output", out, "--minify", "--content", fmt.Sprintf("%s/**/*.html", outDir))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
