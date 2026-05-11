@@ -96,16 +96,6 @@ func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *templ
 		return err
 	}
 
-	templateName := "post.html"
-	if userTemplate, ok := post.Frontmatter["template"]; ok {
-		if templateStr, isString := userTemplate.(string); isString && templateStr != "" {
-			templateName = templateStr
-			if !strings.HasSuffix(templateName, ".html") {
-				templateName += ".html"
-			}
-		}
-	}
-
 	outPath := filepath.Join(outDir, "posts", post.OutputRel, "index.html")
 	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
 		return err
@@ -116,6 +106,22 @@ func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *templ
 		return err
 	}
 	defer outFile.Close()
+
+	if userTemplate, ok := post.Frontmatter["template"]; !ok || userTemplate == "" {
+		_, err := outFile.Write(buf.Bytes())
+		return err
+	}
+
+	templateName := ""
+	if templateStr, isString := post.Frontmatter["template"].(string); isString {
+		templateName = templateStr
+		if !strings.HasSuffix(templateName, ".html") {
+			templateName += ".html"
+		}
+	}
+	if templateName == "" {
+		return fmt.Errorf("template %v not found", post.Frontmatter["template"])
+	}
 
 	data := model.TemplateData{
 		Frontmatter: post.Frontmatter,
@@ -152,17 +158,24 @@ func renderPage(path, outDir string, posts []model.Post, tmpls *template.Templat
 }
 
 func extractFrontmatter(path string, content []byte) (*model.Post, error) {
-	parts := bytes.SplitN(content, []byte("---"), 3)
-	if len(parts) < 3 {
-		return nil, fmt.Errorf("no frontmatter found in %s", path)
+	rawFrontmatter := []byte(nil)
+	rawBody := content
+
+	if bytes.HasPrefix(content, []byte("---")) {
+		parts := bytes.SplitN(content, []byte("---"), 3)
+		if len(parts) < 3 {
+			return nil, fmt.Errorf("malformed frontmatter in %s", path)
+		}
+
+		rawFrontmatter = parts[1]
+		rawBody = parts[2]
 	}
 
-	rawFrontmatter := parts[1]
-	rawBody := parts[2]
-
 	var frontmatter map[string]interface{}
-	if err := yaml.Unmarshal(rawFrontmatter, &frontmatter); err != nil {
-		return nil, fmt.Errorf("failed to parse front matter in %s: %v", path, err)
+	if len(bytes.TrimSpace(rawFrontmatter)) > 0 {
+		if err := yaml.Unmarshal(rawFrontmatter, &frontmatter); err != nil {
+			return nil, fmt.Errorf("failed to parse front matter in %s: %v", path, err)
+		}
 	}
 	if frontmatter == nil {
 		frontmatter = make(map[string]interface{})
