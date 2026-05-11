@@ -108,6 +108,20 @@ func TestRenderPostsWithoutFrontmatter(t *testing.T) {
 	}
 }
 
+func TestLoadPostsRejectsMalformedFrontmatter(t *testing.T) {
+	root := t.TempDir()
+	postsDir := filepath.Join(root, "posts")
+	if err := os.MkdirAll(postsDir, 0755); err != nil {
+		t.Fatalf("mkdir %s: %v", postsDir, err)
+	}
+
+	writeFile(t, filepath.Join(postsDir, "broken.md"), "---\ntitle: missing end marker")
+
+	if _, err := LoadPosts(postsDir); err == nil {
+		t.Fatal("expected LoadPosts to fail for malformed frontmatter")
+	}
+}
+
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
