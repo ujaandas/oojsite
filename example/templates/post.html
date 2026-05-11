@@ -3,7 +3,7 @@
 
 <head>
   {{ template "header.html" . }}
-  <title>{{ .Frontmatter.Title }} | Ujaan Das</title>
+  <title>{{ get .Frontmatter "title" }} | Ujaan Das</title>
 </head>
 
 <body class="flex flex-col items-center justify-center align-middle min-h-screen bg-white text-gray-800 font-serif">
@@ -11,9 +11,9 @@
     {{ template "sidebar.html" . }}
 
     <div class="md:mt-10 w-full overflow-hidden">
-      <h1 class="text-3xl font-bold mb-4">{{ .Frontmatter.Title }}</h1>
+      <h1 class="text-3xl font-bold mb-4">{{ get .Frontmatter "title" }}</h1>
       <article class="article">
-          {{ .Content }}
+        {{ .Content }}
       </article>
     </div>
   </main>

@@ -6,9 +6,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
-	"time"
 
 	"github.com/kaleocheng/goldmark"
 	"github.com/kaleocheng/goldmark/ast"
@@ -26,24 +24,11 @@ For a given markdown file, we need to handle 4 main things:
 */
 
 /*
-The mandatory YAML fields in each post's frontmatter.
-
-Naturally, this is accessible in an HTML page through `Post.Frontmatter`.
-*/
-type Frontmatter struct {
-	Title     string   `yaml:"title"`
-	Template  string   `yaml:"template"`
-	Tags      []string `yaml:"tags,omitempty"`
-	Date      string   `yaml:"date"`
-	Thumbnail string   `yaml:"thumbnail"`
-}
-
-/*
-The actual Post object, wherein each field is accessible
-from the HTML pages themselves.
+Post object containing user-defined frontmatter and content.
+Frontmatter is flexible and can contain any YAML fields the user defines.
 */
 type Post struct {
-	Frontmatter Frontmatter
+	Frontmatter map[string]interface{}
 	Filepath    string
 	Snippet     string
 	Raw         []byte
@@ -71,33 +56,22 @@ func processPost(path, postDir, outDir string, tmpls *template.Template) error {
 		return err
 	}
 
+	// Determine template: use user-specified or default to "post.html"
+	templateName := "post.html"
+	if userTemplate, ok := post.Frontmatter["template"]; ok {
+		if templateStr, isString := userTemplate.(string); isString {
+			templateName = templateStr + ".html"
+		}
+	}
+
 	// Apply template
-	tmpl := tmpls.Lookup(fmt.Sprintf("%s.html", post.Frontmatter.Template))
+	tmpl := tmpls.Lookup(templateName)
 	if tmpl == nil {
-		return err
+		return fmt.Errorf("template %s not found", templateName)
 	}
 
 	// Write outputted file
 	return writePostFile(path, fmt.Sprintf("%s/posts", outDir), tmpl, post, buf)
-}
-
-func sortedPosts(posts []Post) []Post {
-	sorted := make([]Post, len(posts))
-	copy(sorted, posts)
-
-	sort.SliceStable(sorted, func(i, j int) bool {
-		di, err1 := time.Parse("January 2, 2006", sorted[i].Frontmatter.Date)
-		dj, err2 := time.Parse("January 2, 2006", sorted[j].Frontmatter.Date)
-
-		// Fall back to string comparison to keep ordering deterministic
-		if err1 != nil || err2 != nil {
-			return sorted[i].Frontmatter.Date < sorted[j].Frontmatter.Date
-		}
-
-		return di.After(dj)
-	})
-
-	return sorted
 }
 
 // Process and extract frontmatter, converting markdown file to our struct.
@@ -112,10 +86,15 @@ func extractFrontmatter(path string, content []byte) (*Post, error) {
 	rawFrontmatter := parts[1]
 	rawBody := parts[2]
 
-	// Unmarshal and read
-	var frontmatter Frontmatter
+	// Unmarshal into flexible map
+	var frontmatter map[string]interface{}
 	if err := yaml.Unmarshal(rawFrontmatter, &frontmatter); err != nil {
 		return nil, fmt.Errorf("failed to parse front matter in %s: %v", path, err)
+	}
+
+	// Initialize if empty
+	if frontmatter == nil {
+		frontmatter = make(map[string]interface{})
 	}
 
 	// Get relative filepath
@@ -193,16 +172,16 @@ func writePostFile(src, dst string, tmpl *template.Template, post *Post, content
 	data := Template{
 		Frontmatter: post.Frontmatter,
 		Content:     template.HTML(contentBuf.String()),
-		Tags:        tagPostMap,
+		Global: GlobalData{
+			Posts: nil, // will be populated by processPage
+		},
 	}
 	if err := tmpl.Execute(outFile, data); err != nil {
 		return err
 	}
 
-	// collect tags and map posts
-	for _, tag := range post.Frontmatter.Tags {
-		tagPostMap[tag] = append(tagPostMap[tag], *post)
-	}
+	// Collect post for global access
+	allPosts = append(allPosts, *post)
 
 	return nil
 }

@@ -13,24 +13,31 @@ Handle everything pertaining to our final outputted HTML, including post templat
 Confusingly, a page is _not_ simply just landing pages like `index.html`, your blog post
 will also eventually become a "page" - basically anything that ends up as HTML is a page.
 Additionally, all pages have access to Go's templating features, allowing end-users to
-access a wide breadth of global state, things like tags, page titles, options, etc...
+access a wide breadth of global state through .Global.
 */
 
-var tagPostMap = make(map[string][]Post) // tag -> posts
+var allPosts []Post // Collects all posts as they're processed
+
+type GlobalData struct {
+	Posts []Post
+}
 
 type Template struct {
 	Content     template.HTML
-	Frontmatter Frontmatter
-	Tags        map[string][]Post
+	Frontmatter map[string]interface{}
+	Global      GlobalData
 }
 
 type PageData struct {
-	Tags map[string][]Post
+	Global GlobalData
 }
 
 // Load both page templates (ie; for posts) and actual pages (ie; index.html).
 func loadTemplates(tmplDir, componentDir, siteDir string) (*template.Template, error) {
 	tmpls := template.New("")
+
+	// Register custom template functions
+	tmpls.Funcs(createTemplateFuncs())
 
 	// load post templates
 	filepath.Walk(tmplDir, func(path string, info os.FileInfo, err error) error {
@@ -76,7 +83,6 @@ func loadTemplates(tmplDir, componentDir, siteDir string) (*template.Template, e
 		}
 
 		content, _ := os.ReadFile(path)
-		// log.Printf("Loaded new component template named: %s", rel)
 		tmpls.New(rel).Parse(string(content))
 		return err
 	})
@@ -106,14 +112,10 @@ func processPage(path, outDir string, tmpls *template.Template) error {
 	}
 	defer outFile.Close()
 
-	// fill in tags
 	data := PageData{
-		Tags: make(map[string][]Post),
-	}
-
-	for tag, posts := range tagPostMap {
-		capitalTag := strings.ToTitle(tag[:1]) + tag[1:]
-		data.Tags[capitalTag] = sortedPosts(posts)
+		Global: GlobalData{
+			Posts: allPosts,
+		},
 	}
 
 	// write output file
