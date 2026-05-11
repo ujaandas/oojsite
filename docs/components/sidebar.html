@@ -1,0 +1,12 @@
+<aside
+    class="border-b border-zinc-200 bg-white px-6 py-6 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-5">
+    <a class="block text-2xl font-semibold tracking-tight text-zinc-950" href="/">oojsite</a>
+
+    <nav class="mt-6 flex flex-col gap-2 text-sm">
+        {{ range filterPostsByField "template" "docs" (sortBy "order" .Global.Posts) }}
+        <a class="text-zinc-800 text-lg transition hover:text-zinc-950" href="{{ .Filepath }}">{{ get .Frontmatter
+            "title"
+            }}</a>
+        {{ end }}
+    </nav>
+</aside>

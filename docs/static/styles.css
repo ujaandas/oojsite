@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-white text-zinc-950 antialiased text-[18px] leading-8;
+        font-family: 'Georgia', serif;
+    }
+
+    a {
+        @apply text-zinc-950;
+    }
+
+    ::selection {
+        @apply bg-zinc-900 text-white;
+    }
+
+    code {
+        @apply rounded bg-zinc-100 px-1 py-0.5 text-[0.95em];
+        font-family: 'JetBrains Mono', monospace;
+    }
+}
+
+@layer components {
+    .article {
+        @apply max-w-none;
+    }
+
+    .article h1 {
+        /* @apply text-5xl mb-5 font-semibold tracking-tight sm:text-6xl; */
+    }
+
+    .article h2 {
+        @apply mt-12 mb-5 text-3xl font-semibold tracking-tight;
+    }
+
+    .article h3 {
+        @apply mt-8 mb-5 text-xl font-semibold;
+    }
+
+    .article p,
+    .article li {
+        @apply leading-8 text-zinc-700;
+    }
+
+    .article ul,
+    .article ol {
+        @apply mt-2 mb-4 space-y-2 pl-7;
+    }
+
+    .article ul {
+        @apply list-disc;
+    }
+
+    .article ol {
+        @apply list-decimal;
+    }
+
+    .article li::marker {
+        @apply text-zinc-400;
+    }
+
+    .article pre {
+        @apply overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-50 p-5 text-sm shadow-sm;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .article pre code {
+        @apply bg-transparent p-0 text-inherit;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .article blockquote {
+        @apply border-l-4 border-zinc-200 pl-4 text-zinc-600;
+    }
+
+    .article a {
+        @apply underline decoration-zinc-300 underline-offset-4 transition hover:decoration-zinc-600;
+    }
+
+    .article hr {
+        @apply my-10 border-zinc-200;
+    }
+}
