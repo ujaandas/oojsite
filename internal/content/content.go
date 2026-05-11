@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/kaleocheng/goldmark"
@@ -38,10 +39,38 @@ func LoadPosts(postDir string) ([]model.Post, error) {
 	}
 
 	sort.SliceStable(posts, func(i, j int) bool {
+		iNum := extractNumericPrefix(posts[i].SourcePath)
+		jNum := extractNumericPrefix(posts[j].SourcePath)
+		if iNum != -1 && jNum != -1 {
+			return iNum < jNum
+		}
 		return posts[i].SourcePath < posts[j].SourcePath
 	})
 
 	return posts, nil
+}
+
+func extractNumericPrefix(path string) int {
+	filename := filepath.Base(path)
+	if len(filename) == 0 {
+		return -1
+	}
+	var numStr string
+	for _, ch := range filename {
+		if ch >= '0' && ch <= '9' {
+			numStr += string(ch)
+		} else {
+			break
+		}
+	}
+	if numStr == "" {
+		return -1
+	}
+	num, err := strconv.Atoi(numStr)
+	if err != nil {
+		return -1
+	}
+	return num
 }
 
 func RenderPosts(posts []model.Post, outDir string, tmpls *template.Template) error {
