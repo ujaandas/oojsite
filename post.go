@@ -190,10 +190,12 @@ func writePostFile(src, dst string, tmpl *template.Template, post *Post, content
 	defer outFile.Close()
 
 	// Write to the output file
-	if err := tmpl.Execute(outFile, Template{
+	data := Template{
 		Frontmatter: post.Frontmatter,
 		Content:     template.HTML(contentBuf.String()),
-	}); err != nil {
+		Tags:        tagPostMap,
+	}
+	if err := tmpl.Execute(outFile, data); err != nil {
 		return err
 	}
 

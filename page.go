@@ -21,6 +21,7 @@ var tagPostMap = make(map[string][]Post) // tag -> posts
 type Template struct {
 	Content     template.HTML
 	Frontmatter Frontmatter
+	Tags        map[string][]Post
 }
 
 type PageData struct {
