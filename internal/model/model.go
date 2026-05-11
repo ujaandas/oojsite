@@ -8,6 +8,7 @@ type Post struct {
 	Filepath    string
 	Frontmatter map[string]interface{}
 	Snippet     string
+	Content     template.HTML
 	Raw         []byte
 }
 
