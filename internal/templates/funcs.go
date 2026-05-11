@@ -13,17 +13,21 @@ import (
 
 func Funcs() template.FuncMap {
 	return template.FuncMap{
-		"groupBy":    groupBy,
-		"sortBy":     sortBy,
-		"sortByDesc": sortByDesc,
-		"filter":     filterPosts,
-		"first":      first,
-		"reverse":    reversePosts,
-		"unique":     unique,
-		"get":        getSafe,
-		"slugify":    slugify,
-		"truncate":   truncate,
-		"formatDate": formatDate,
+		"groupBy":               groupBy,
+		"sortBy":                sortBy,
+		"sortByDesc":            sortByDesc,
+		"filter":                filterPosts,
+		"findPostByField":       findFirstPostByField,
+		"filterPostsByField":    findPostsByField,
+		"findPostByNotField":    findFirstPostByNotField,
+		"filterPostsByNotField": findPostsByNotField,
+		"first":                 first,
+		"reverse":               reversePosts,
+		"unique":                unique,
+		"get":                   getSafe,
+		"slugify":               slugify,
+		"truncate":              truncate,
+		"formatDate":            formatDate,
 	}
 }
 
@@ -76,11 +80,49 @@ func sortByDesc(field string, posts []model.Post) []model.Post {
 func filterPosts(field, value string, posts []model.Post) []model.Post {
 	var result []model.Post
 	for _, post := range posts {
-		if getFieldValue(post.Frontmatter, field) == value {
+		if matchesField(post, field, value) {
 			result = append(result, post)
 		}
 	}
 	return result
+}
+
+func findPostsByNotField(field, value string, posts []model.Post) []model.Post {
+	var result []model.Post
+	for _, post := range posts {
+		if !matchesField(post, field, value) {
+			result = append(result, post)
+		}
+	}
+	return result
+}
+
+func findFirstPostByNotField(field, value string, posts []model.Post) *model.Post {
+	for i := range posts {
+		if !matchesField(posts[i], field, value) {
+			return &posts[i]
+		}
+	}
+	return nil
+}
+
+func findPostsByField(field, value string, posts []model.Post) []model.Post {
+	var result []model.Post
+	for _, post := range posts {
+		if matchesField(post, field, value) {
+			result = append(result, post)
+		}
+	}
+	return result
+}
+
+func findFirstPostByField(field, value string, posts []model.Post) *model.Post {
+	for i := range posts {
+		if matchesField(posts[i], field, value) {
+			return &posts[i]
+		}
+	}
+	return nil
 }
 
 func first(n int, posts []model.Post) []model.Post {
@@ -171,4 +213,17 @@ func getFieldValue(fm map[string]interface{}, field string) string {
 		}
 	}
 	return ""
+}
+
+func matchesField(post model.Post, field, value string) bool {
+	if slice, ok := post.Frontmatter[field].([]interface{}); ok {
+		for _, item := range slice {
+			if str, isStr := item.(string); isStr && str == value {
+				return true
+			}
+		}
+		return false
+	}
+
+	return getFieldValue(post.Frontmatter, field) == value
 }
