@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -56,6 +57,12 @@ func sortBy(field string, posts []model.Post) []model.Post {
 	copy(sorted, posts)
 
 	sort.SliceStable(sorted, func(i, j int) bool {
+		numI, okI := getNumericFieldValue(sorted[i].Frontmatter, field)
+		numJ, okJ := getNumericFieldValue(sorted[j].Frontmatter, field)
+		if okI && okJ {
+			return numI < numJ
+		}
+
 		valI := getFieldValue(sorted[i].Frontmatter, field)
 		valJ := getFieldValue(sorted[j].Frontmatter, field)
 
@@ -213,6 +220,31 @@ func getFieldValue(fm map[string]interface{}, field string) string {
 		}
 	}
 	return ""
+}
+
+func getNumericFieldValue(fm map[string]interface{}, field string) (float64, bool) {
+	val, ok := fm[field]
+	if !ok {
+		return 0, false
+	}
+
+	switch v := val.(type) {
+	case int:
+		return float64(v), true
+	case int64:
+		return float64(v), true
+	case float64:
+		return v, true
+	case float32:
+		return float64(v), true
+	case string:
+		n, err := strconv.ParseFloat(strings.TrimSpace(v), 64)
+		if err == nil {
+			return n, true
+		}
+	}
+
+	return 0, false
 }
 
 func matchesField(post model.Post, field, value string) bool {
