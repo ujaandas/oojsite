@@ -45,10 +45,12 @@ func LoadPosts(postDir string) ([]model.Post, error) {
 }
 
 func RenderPosts(posts []model.Post, outDir string, tmpls *template.Template) error {
-	for _, post := range posts {
-		if err := renderPost(post, posts, outDir, tmpls); err != nil {
+	for i := range posts {
+		content, err := renderPost(posts[i], posts, outDir, tmpls)
+		if err != nil {
 			return err
 		}
+		posts[i].Content = content
 	}
 	return nil
 }
@@ -89,27 +91,27 @@ func loadPost(path, postDir string) (*model.Post, error) {
 	return post, nil
 }
 
-func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *template.Template) error {
+func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *template.Template) (template.HTML, error) {
 	md := goldmark.New()
 	var buf bytes.Buffer
 	if err := md.Convert(post.Raw, &buf); err != nil {
-		return err
+		return "", err
 	}
 
 	outPath := filepath.Join(outDir, "posts", post.OutputRel, "index.html")
 	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
-		return err
+		return "", err
 	}
 
 	outFile, err := os.Create(outPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer outFile.Close()
 
 	if userTemplate, ok := post.Frontmatter["template"]; !ok || userTemplate == "" {
 		_, err := outFile.Write(buf.Bytes())
-		return err
+		return template.HTML(buf.String()), err
 	}
 
 	templateName := ""
@@ -120,7 +122,7 @@ func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *templ
 		}
 	}
 	if templateName == "" {
-		return fmt.Errorf("template %v not found", post.Frontmatter["template"])
+		return "", fmt.Errorf("template %v not found", post.Frontmatter["template"])
 	}
 
 	data := model.TemplateData{
@@ -131,9 +133,12 @@ func renderPost(post model.Post, posts []model.Post, outDir string, tmpls *templ
 
 	selected := tmpls.Lookup(templateName)
 	if selected == nil {
-		return fmt.Errorf("template %s not found", templateName)
+		return "", fmt.Errorf("template %s not found", templateName)
 	}
-	return selected.Execute(outFile, data)
+	if err := selected.Execute(outFile, data); err != nil {
+		return "", err
+	}
+	return template.HTML(buf.String()), nil
 }
 
 func renderPage(path, outDir string, posts []model.Post, tmpls *template.Template) error {
