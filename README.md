@@ -37,7 +37,7 @@ nix run . -- \
 
 All paths are configurable via CLI flags.
 
-## How It Works
+## Getting Started
 
 ### 1. Write Some Markdown
 
@@ -75,7 +75,7 @@ Your content here...
 oojsite --postDir="posts" --pageDir="site" --templateDir="templates" --componentDir="components" --dev
 ```
 
-## Getting Started
+## How It Works
 
 All templates have access to:
 - **`.Frontmatter`** – User-defined YAML fields
@@ -83,15 +83,26 @@ All templates have access to:
 - **`.Global.Posts`** – All posts processed so far
 - **Template functions** – groupBy, sortBy, filter, get, slugify, etc.
 
-Essentially, `oojsite` breaks your content into 4 main denominations:
-1. Posts, which are any file written in Markdown (end in `*.md`)
-2. Pages, which are all the HTML files in the `pageDir` option
-3. Templates, which are all the HTML files in the `templateDir` option
-4. Components, which are all the HTML files in the `componentDir` option
+Essentially, `oojsite` breaks your content into 4 content types:
+1. Posts, which are any Markdown files in `postDir`
+2. Pages, which are all the HTML files in `pageDir`
+3. Templates, which are all the HTML files in `templateDir`
+4. Components, which are all the HTML files in `componentDir`
 
-Templates are, as you might have guessed, applied to posts. If no template is specified, it is rendered as raw text.
-Components are also pretty straightforward, just reusable components you can call in pages or templates.
-Finally, pages are the actual pages the user will see/visit.
+The implementation is intentionally simple:
+- Posts may have frontmatter, but they do not need it
+- If a post specifies `template: my-layout`, `oojsite` uses `templates/my-layout.html`
+- If no template is specified, the markdown is converted straight to HTML and written out directly
+- Components are reusable HTML fragments that you can call from pages or templates with `{{ template "header.html" . }}`
+- Pages are plain HTML templates that get the global post collection and can build indexes, archives, or anything else
+
+For a new user, the shortest path is:
+1. Put Markdown files in `posts/`
+2. Put page templates in `site/`
+3. Put reusable layouts in `templates/` and shared fragments in `components/`
+4. Run `oojsite --dev`
+
+That is enough to get started. The only real convention is how you choose to structure your own frontmatter and how you use the template helpers.
 
 
 
